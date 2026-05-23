@@ -141,9 +141,6 @@ button.danger {
 }
 
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
   display: flex;
   justify-content: space-between;
   gap: 18px;
@@ -180,7 +177,6 @@ button.danger {
 }
 
 .summary-panel {
-  position: static;
   display: grid;
   gap: 12px;
   padding: 16px;
@@ -188,6 +184,32 @@ button.danger {
   border-radius: var(--radius);
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.live-summary {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: -16px -16px 0;
+  padding: 12px 16px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  gap: 10px;
+}
+
+.live-summary .summary-topline strong {
+  font-size: clamp(1.8rem, 8vw, 2.45rem);
+}
+
+.live-summary .summary-grid div {
+  padding: 8px;
+}
+
+.live-summary .summary-grid {
+  grid-column: 1 / -1;
 }
 
 .summary-topline {
@@ -749,6 +771,17 @@ input[type="number"] {
 @media (min-width: 720px) {
   .app-shell {
     padding: 24px;
+  }
+
+  .live-summary {
+    margin: -24px 0 0;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .live-summary .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .wizard-status {
