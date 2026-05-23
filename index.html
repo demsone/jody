@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inkson Garment Cost Calculator</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("inkson-theme-v1");
+        if (savedTheme === "dark") document.documentElement.dataset.theme = "dark";
+      } catch {}
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Inkson</p>
+        <h1>Garment Cost Calculator</h1>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Dark</button>
+        <button class="icon-button" id="printButton" type="button" title="Print costing sheet">Print</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="summary-panel" aria-label="Pricing output summary">
+        <div class="summary-topline">
+          <span>Recommended retail</span>
+          <strong id="summaryRetail">$0.00</strong>
+        </div>
+        <div class="status-pill" id="summaryStatus">Needs inputs</div>
+        <dl class="summary-grid">
+          <div>
+            <dt>Total unit cost</dt>
+            <dd id="summaryUnitCost">$0.00</dd>
+          </div>
+          <div>
+            <dt>Gross margin</dt>
+            <dd id="summaryMargin">0.0%</dd>
+          </div>
+          <div>
+            <dt>Wholesale</dt>
+            <dd id="summaryWholesale">$0.00</dd>
+          </div>
+          <div>
+            <dt>Wholesale profit</dt>
+            <dd id="summaryWholesaleProfit">$0.00</dd>
+          </div>
+        </dl>
+      </aside>
+
+      <form id="costingForm" autocomplete="off">
+        <section class="toolbar">
+          <div class="field compact">
+            <label for="savedCostings">Saved costings</label>
+            <select id="savedCostings"></select>
+          </div>
+          <div class="button-row">
+            <button type="button" id="newButton">New</button>
+            <button type="button" id="saveButton" class="primary">Save</button>
+            <button type="button" id="duplicateButton">Duplicate</button>
+            <button type="button" id="deleteButton" class="danger">Delete</button>
+          </div>
+        </section>
+
+        <details class="card" open>
+          <summary>
+            <span>1. Garment Details</span>
+            <strong id="garmentDetailTotal">Setup</strong>
+          </summary>
+          <div class="section-body two-column">
+            <div class="field">
+              <label for="garmentName">Garment name</label>
+              <input id="garmentName" name="garmentName" type="text" value="Baggy flared stylist pant" />
+            </div>
+            <div class="field">
+              <label for="styleCode">Style code</label>
+              <input id="styleCode" name="styleCode" type="text" value="INK-PANT-001" />
+            </div>
+            <div class="field">
+              <label for="productType">Product type</label>
+              <input id="productType" name="productType" type="text" value="Pant" />
+            </div>
+            <div class="field">
+              <label for="productionQuantity">Production quantity</label>
+              <input id="productionQuantity" name="productionQuantity" type="number" min="1" step="1" value="50" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="targetMargin">Target gross margin %</label>
+              <input id="targetMargin" name="targetMargin" type="number" min="0" max="95" step="0.1" value="70" inputmode="decimal" />
+            </div>
+            <fieldset class="field radio-group">
+              <legend>GST included?</legend>
+              <label><input type="radio" name="gstIncluded" value="yes" checked /> Yes</label>
+              <label><input type="radio" name="gstIncluded" value="no" /> No</label>
+            </fieldset>
+            <div class="field">
+              <label for="productionModel">Production model</label>
+              <select id="productionModel" name="productionModel">
+                <option value="internal">Internal</option>
+                <option value="local maker">Local maker</option>
+                <option value="offshore">Offshore</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pricingModel">Pricing model</label>
+              <select id="pricingModel" name="pricingModel">
+                <option value="DTC only">DTC only</option>
+                <option value="DTC + wholesale">DTC + wholesale</option>
+              </select>
+            </div>
+          </div>
+        </details>
+
+        <details class="card" open>
+          <summary>
+            <span>2. Direct Materials</span>
+            <strong id="materialsTotal">$0.00</strong>
+          </summary>
+          <div class="section-body">
+            <div class="table-wrap">
+              <table class="cost-table" id="materialsTable">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Unit cost</th>
+                    <th>Qty</th>
+                    <th>Waste %</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <button type="button" id="addMaterialButton">Add material</button>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>3. Development Costs</span>
+            <strong id="developmentPerUnit">$0.00 / unit</strong>
+          </summary>
+          <div class="section-body two-column" id="developmentFields"></div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>4. Labour</span>
+            <strong id="labourTotal">$0.00</strong>
+          </summary>
+          <div class="section-body">
+            <div class="segmented" role="group" aria-label="Labour mode">
+              <button type="button" id="simpleLabourButton" class="active">Simple</button>
+              <button type="button" id="advancedLabourButton">Advanced</button>
+            </div>
+            <div class="two-column" id="simpleLabourFields">
+              <div class="field">
+                <label for="simpleLabourHours">Total labour hours per garment</label>
+                <input id="simpleLabourHours" name="simpleLabourHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="simpleHourlyRate">Hourly rate</label>
+                <input id="simpleHourlyRate" name="simpleHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+              </div>
+            </div>
+            <div class="two-column hidden" id="advancedLabourFields">
+              <div class="field">
+                <label for="cuttingHours">Cutting hours</label>
+                <input id="cuttingHours" name="cuttingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="sewingHours">Sewing hours</label>
+                <input id="sewingHours" name="sewingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="pressingHours">Pressing hours</label>
+                <input id="pressingHours" name="pressingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="finishingHours">Finishing hours</label>
+                <input id="finishingHours" name="finishingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="qcHours">QC inspection hours</label>
+                <input id="qcHours" name="qcHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="packingHours">Packing hours</label>
+                <input id="packingHours" name="packingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+              </div>
+              <div class="field">
+                <label for="advancedHourlyRate">Hourly rate</label>
+                <input id="advancedHourlyRate" name="advancedHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>5. Overheads</span>
+            <strong id="overheadPerUnit">$0.00 / unit</strong>
+          </summary>
+          <div class="section-body two-column" id="overheadFields"></div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>6. Selling Costs</span>
+            <strong id="sellingTotal">$0.00</strong>
+          </summary>
+          <div class="section-body two-column">
+            <div class="field">
+              <label for="paymentGatewayPercent">Payment gateway %</label>
+              <input id="paymentGatewayPercent" name="paymentGatewayPercent" type="number" min="0" step="0.1" value="1.8" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="platformFee">Ecommerce platform fee per unit</label>
+              <input id="platformFee" name="platformFee" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="returnsReservePercent">Returns reserve %</label>
+              <input id="returnsReservePercent" name="returnsReservePercent" type="number" min="0" step="0.1" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="defectReservePercent">Defect / alteration reserve %</label>
+              <input id="defectReservePercent" name="defectReservePercent" type="number" min="0" step="0.1" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="shippingSubsidy">Shipping subsidy per unit</label>
+              <input id="shippingSubsidy" name="shippingSubsidy" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="packagingExtras">Customer packaging extras</label>
+              <input id="packagingExtras" name="packagingExtras" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="otherSellingCost">Other selling cost</label>
+              <input id="otherSellingCost" name="otherSellingCost" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
+            </div>
+            <p class="formula-note">Percentage selling costs are solved against the recommended retail price so the margin target remains accurate.</p>
+          </div>
+        </details>
+
+        <details class="card" open>
+          <summary>
+            <span>7. Pricing Output</span>
+            <strong id="pricingHealth">Needs inputs</strong>
+          </summary>
+          <div class="section-body">
+            <div class="output-grid">
+              <div><span>Direct materials total</span><strong id="outMaterials">$0.00</strong></div>
+              <div><span>Development recovery per unit</span><strong id="outDevelopment">$0.00</strong></div>
+              <div><span>Labour cost per unit</span><strong id="outLabour">$0.00</strong></div>
+              <div><span>Overhead allocation per unit</span><strong id="outOverhead">$0.00</strong></div>
+              <div><span>Selling cost estimate</span><strong id="outSelling">$0.00</strong></div>
+              <div><span>Total unit cost</span><strong id="outUnitCost">$0.00</strong></div>
+              <div class="hero-output"><span>Recommended DTC retail price</span><strong id="outRetail">$0.00</strong></div>
+              <div><span>Gross profit per unit</span><strong id="outGrossProfit">$0.00</strong></div>
+              <div><span>Gross margin %</span><strong id="outGrossMargin">0.0%</strong></div>
+              <div><span>Wholesale price</span><strong id="outWholesale">$0.00</strong></div>
+              <div><span>Wholesale profit per unit</span><strong id="outWholesaleProfit">$0.00</strong></div>
+              <div><span>Wholesale viable?</span><strong id="outWholesaleViable">Needs inputs</strong></div>
+            </div>
+            <div class="warning-box" id="pricingWarning" hidden></div>
+            <div class="button-row">
+              <button type="button" id="copySummaryButton">Copy pricing summary</button>
+              <button type="button" id="exportJsonButton">Export JSON</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>8. Competitor Comparison</span>
+            <strong id="competitorPosition">No data</strong>
+          </summary>
+          <div class="section-body">
+            <div class="competitor-table" id="competitorFields"></div>
+            <div class="output-grid compact-output">
+              <div><span>Inkson proposed retail</span><strong id="compInksonRetail">$0.00</strong></div>
+              <div><span>Lowest competitor price</span><strong id="compLowest">$0.00</strong></div>
+              <div><span>Highest competitor price</span><strong id="compHighest">$0.00</strong></div>
+              <div><span>Average competitor price</span><strong id="compAverage">$0.00</strong></div>
+              <div><span>Position</span><strong id="compPosition">No data</strong></div>
+            </div>
+          </div>
+        </details>
+      </form>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
