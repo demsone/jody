@@ -551,9 +551,9 @@ function deleteCurrentCosting() {
 function resetForm() {
   currentCostingId = null;
   $("#costingForm").reset();
-  $("#garmentName").value = "Baggy flared stylist pant";
-  $("#styleCode").value = "INK-PANT-001";
-  $("#productType").value = "Pant";
+  $("#garmentName").value = "";
+  $("#styleCode").value = "";
+  $("#productType").value = "";
   $("#productionQuantity").value = "50";
   $("#targetMargin").value = "70";
   $("#paymentGatewayPercent").value = "1.8";
@@ -562,6 +562,7 @@ function resetForm() {
   setLabourMode("simple");
   renderSavedCostings();
   updateDisplay();
+  requestAnimationFrame(() => $("#garmentName").focus());
 }
 
 function exportJson() {
