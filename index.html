@@ -29,32 +29,6 @@
 
     <main class="app-shell">
       <form id="costingForm" autocomplete="off">
-        <section class="summary-panel live-summary" aria-label="Live pricing summary">
-          <div class="summary-topline">
-            <span>Recommended retail</span>
-            <strong id="summaryRetail">$0.00</strong>
-          </div>
-          <div class="status-pill" id="summaryStatus">Needs inputs</div>
-          <dl class="summary-grid">
-            <div>
-              <dt>Total unit cost</dt>
-              <dd id="summaryUnitCost">$0.00</dd>
-            </div>
-            <div>
-              <dt>Gross margin</dt>
-              <dd id="summaryMargin">0.0%</dd>
-            </div>
-            <div>
-              <dt>Wholesale</dt>
-              <dd id="summaryWholesale">$0.00</dd>
-            </div>
-            <div>
-              <dt>Wholesale profit</dt>
-              <dd id="summaryWholesaleProfit">$0.00</dd>
-            </div>
-          </dl>
-        </section>
-
         <section class="wizard-status" aria-live="polite">
           <div>
             <p id="wizardStepCount">Step 1 of 8</p>
@@ -310,6 +284,31 @@
             <strong id="pricingHealth">Needs inputs</strong>
           </div>
           <div class="section-body">
+            <div class="summary-panel" aria-label="Pricing output summary">
+              <div class="summary-topline">
+                <span>Recommended retail</span>
+                <strong id="summaryRetail">$0.00</strong>
+              </div>
+              <div class="status-pill" id="summaryStatus">Needs inputs</div>
+              <dl class="summary-grid">
+                <div>
+                  <dt>Total unit cost</dt>
+                  <dd id="summaryUnitCost">$0.00</dd>
+                </div>
+                <div>
+                  <dt>Gross margin</dt>
+                  <dd id="summaryMargin">0.0%</dd>
+                </div>
+                <div>
+                  <dt>Wholesale</dt>
+                  <dd id="summaryWholesale">$0.00</dd>
+                </div>
+                <div>
+                  <dt>Wholesale profit</dt>
+                  <dd id="summaryWholesaleProfit">$0.00</dd>
+                </div>
+              </dl>
+            </div>
             <div class="output-grid">
               <div><span>Direct materials total</span><strong id="outMaterials">$0.00</strong></div>
               <div><span>Development recovery per unit</span><strong id="outDevelopment">$0.00</strong></div>
