@@ -2,6 +2,8 @@
 
 Static mobile-first costing calculator for Inkson garments.
 
+Current build: `v1.01`
+
 ## Files
 
 - `index.html` - app structure

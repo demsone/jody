@@ -31,7 +31,7 @@
   --focus: rgba(33, 105, 92, 0.16);
   --shadow: 0 18px 50px rgba(28, 33, 30, 0.09);
   --radius: 8px;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Outfit, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 html[data-theme="dark"] {
@@ -167,11 +167,18 @@ button.danger {
   text-transform: uppercase;
 }
 
+.build-number {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  width: min(1180px, 100%);
+  width: min(940px, 100%);
   margin: 0 auto;
   padding: 16px;
 }
@@ -184,6 +191,32 @@ button.danger {
   border-radius: var(--radius);
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.live-summary {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: -16px -16px 0;
+  padding: 12px 16px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  gap: 10px;
+}
+
+.live-summary .summary-topline strong {
+  font-size: clamp(1.8rem, 8vw, 2.45rem);
+}
+
+.live-summary .summary-grid div {
+  padding: 8px;
+}
+
+.live-summary .summary-grid {
+  grid-column: 1 / -1;
 }
 
 .summary-topline {
@@ -262,6 +295,45 @@ form {
   gap: 14px;
 }
 
+.wizard-status {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.wizard-status p {
+  margin: 0 0 3px;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.wizard-status h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  line-height: 1;
+}
+
+.progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+}
+
+.progress-track div {
+  width: 12.5%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 180ms ease;
+}
+
 .toolbar {
   display: grid;
   gap: 12px;
@@ -287,6 +359,55 @@ form {
   border-radius: var(--radius);
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.step-panel {
+  display: none;
+}
+
+.step-panel.is-active {
+  display: block;
+}
+
+.step-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.step-head p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.step-head h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 5vw, 2rem);
+  line-height: 1.05;
+}
+
+.step-head strong {
+  color: var(--accent);
+  font-size: 1rem;
+  text-align: right;
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.wizard-actions button {
+  flex: 1 1 0;
 }
 
 summary {
@@ -320,8 +441,7 @@ summary strong {
 .section-body {
   display: grid;
   gap: 14px;
-  padding: 0 16px 16px;
-  border-top: 1px solid var(--line);
+  padding: 16px;
 }
 
 .two-column {
@@ -660,6 +780,22 @@ input[type="number"] {
     padding: 24px;
   }
 
+  .live-summary {
+    margin: -24px 0 0;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .live-summary .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .wizard-status {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    align-items: center;
+  }
+
   .toolbar {
     grid-template-columns: minmax(260px, 1fr) auto;
     align-items: end;
@@ -690,27 +826,12 @@ input[type="number"] {
   }
 }
 
-@media (min-width: 980px) {
-  .app-shell {
-    grid-template-columns: minmax(0, 1fr) 340px;
-    align-items: start;
-  }
-
-  .summary-panel {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  form {
-    grid-column: 1;
-    grid-row: 1;
-  }
-}
-
 @media print {
   .app-header,
   .toolbar,
   .button-row,
+  .wizard-status,
+  .wizard-actions,
   .remove-row,
   #addMaterialButton,
   .toast {
@@ -736,11 +857,11 @@ input[type="number"] {
     margin-bottom: 10px;
   }
 
-  details:not([open]) .section-body {
-    display: grid;
+  .step-panel {
+    display: block;
   }
 
-  summary {
+  .step-head {
     border-bottom: 1px solid var(--line);
   }
 }
