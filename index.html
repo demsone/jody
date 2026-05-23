@@ -10,9 +10,6 @@
         if (savedTheme === "dark") document.documentElement.dataset.theme = "dark";
       } catch {}
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -28,17 +25,33 @@
     </header>
 
     <main class="app-shell">
-      <form id="costingForm" autocomplete="off">
-        <section class="wizard-status" aria-live="polite">
+      <aside class="summary-panel" aria-label="Pricing output summary">
+        <div class="summary-topline">
+          <span>Recommended retail</span>
+          <strong id="summaryRetail">$0.00</strong>
+        </div>
+        <div class="status-pill" id="summaryStatus">Needs inputs</div>
+        <dl class="summary-grid">
           <div>
-            <p id="wizardStepCount">Step 1 of 8</p>
-            <h2 id="wizardStepTitle">Garment basics</h2>
+            <dt>Total unit cost</dt>
+            <dd id="summaryUnitCost">$0.00</dd>
           </div>
-          <div class="progress-track" aria-hidden="true">
-            <div id="wizardProgress"></div>
+          <div>
+            <dt>Gross margin</dt>
+            <dd id="summaryMargin">0.0%</dd>
           </div>
-        </section>
+          <div>
+            <dt>Wholesale</dt>
+            <dd id="summaryWholesale">$0.00</dd>
+          </div>
+          <div>
+            <dt>Wholesale profit</dt>
+            <dd id="summaryWholesaleProfit">$0.00</dd>
+          </div>
+        </dl>
+      </aside>
 
+      <form id="costingForm" autocomplete="off">
         <section class="toolbar">
           <div class="field compact">
             <label for="savedCostings">Saved costings</label>
@@ -52,11 +65,11 @@
           </div>
         </section>
 
-        <section class="step-panel card is-active" data-step-title="Garment basics">
-          <div class="step-head">
-            <p>Step 1</p>
-            <h2>Garment basics</h2>
-          </div>
+        <details class="card" open>
+          <summary>
+            <span>1. Garment Details</span>
+            <strong id="garmentDetailTotal">Setup</strong>
+          </summary>
           <div class="section-body two-column">
             <div class="field">
               <label for="garmentName">Garment name</label>
@@ -99,18 +112,13 @@
               </select>
             </div>
           </div>
-          <div class="wizard-actions">
-            <span></span>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
+        </details>
 
-        <section class="step-panel card" data-step-title="Materials only">
-          <div class="step-head">
-            <p>Step 2</p>
-            <h2>Materials only</h2>
+        <details class="card" open>
+          <summary>
+            <span>2. Direct Materials</span>
             <strong id="materialsTotal">$0.00</strong>
-          </div>
+          </summary>
           <div class="section-body">
             <div class="table-wrap">
               <table class="cost-table" id="materialsTable">
@@ -129,18 +137,21 @@
             </div>
             <button type="button" id="addMaterialButton">Add material</button>
           </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
+        </details>
 
-        <section class="step-panel card" data-step-title="Labour">
-          <div class="step-head">
-            <p>Step 3</p>
-            <h2>Labour</h2>
+        <details class="card">
+          <summary>
+            <span>3. Development Costs</span>
+            <strong id="developmentPerUnit">$0.00 / unit</strong>
+          </summary>
+          <div class="section-body two-column" id="developmentFields"></div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>4. Labour</span>
             <strong id="labourTotal">$0.00</strong>
-          </div>
+          </summary>
           <div class="section-body">
             <div class="segmented" role="group" aria-label="Labour mode">
               <button type="button" id="simpleLabourButton" class="active">Simple</button>
@@ -187,44 +198,21 @@
               </div>
             </div>
           </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
+        </details>
 
-        <section class="step-panel card" data-step-title="Development costs">
-          <div class="step-head">
-            <p>Step 4</p>
-            <h2>Development costs</h2>
-            <strong id="developmentPerUnit">$0.00 / unit</strong>
-          </div>
-          <div class="section-body two-column" id="developmentFields"></div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
-
-        <section class="step-panel card" data-step-title="Overheads">
-          <div class="step-head">
-            <p>Step 5</p>
-            <h2>Overheads</h2>
+        <details class="card">
+          <summary>
+            <span>5. Overheads</span>
             <strong id="overheadPerUnit">$0.00 / unit</strong>
-          </div>
+          </summary>
           <div class="section-body two-column" id="overheadFields"></div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
+        </details>
 
-        <section class="step-panel card" data-step-title="Selling costs">
-          <div class="step-head">
-            <p>Step 6</p>
-            <h2>Selling costs</h2>
+        <details class="card">
+          <summary>
+            <span>6. Selling Costs</span>
             <strong id="sellingTotal">$0.00</strong>
-          </div>
+          </summary>
           <div class="section-body two-column">
             <div class="field">
               <label for="paymentGatewayPercent">Payment gateway %</label>
@@ -256,59 +244,14 @@
             </div>
             <p class="formula-note">Percentage selling costs are solved against the recommended retail price so the margin target remains accurate.</p>
           </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
+        </details>
 
-        <section class="step-panel card" data-step-title="Market comparison">
-          <div class="step-head">
-            <p>Step 7</p>
-            <h2>Market comparison</h2>
-            <strong id="competitorPosition">No data</strong>
-          </div>
-          <div class="section-body">
-            <div class="competitor-table" id="competitorFields"></div>
-          </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Commercial output</button>
-          </div>
-        </section>
-
-        <section class="step-panel card commercial-step" data-step-title="Commercial Output">
-          <div class="step-head">
-            <p>Final screen</p>
-            <h2>Commercial Output</h2>
+        <details class="card" open>
+          <summary>
+            <span>7. Pricing Output</span>
             <strong id="pricingHealth">Needs inputs</strong>
-          </div>
+          </summary>
           <div class="section-body">
-            <div class="summary-panel" aria-label="Pricing output summary">
-              <div class="summary-topline">
-                <span>Recommended retail</span>
-                <strong id="summaryRetail">$0.00</strong>
-              </div>
-              <div class="status-pill" id="summaryStatus">Needs inputs</div>
-              <dl class="summary-grid">
-                <div>
-                  <dt>Total unit cost</dt>
-                  <dd id="summaryUnitCost">$0.00</dd>
-                </div>
-                <div>
-                  <dt>Gross margin</dt>
-                  <dd id="summaryMargin">0.0%</dd>
-                </div>
-                <div>
-                  <dt>Wholesale</dt>
-                  <dd id="summaryWholesale">$0.00</dd>
-                </div>
-                <div>
-                  <dt>Wholesale profit</dt>
-                  <dd id="summaryWholesaleProfit">$0.00</dd>
-                </div>
-              </dl>
-            </div>
             <div class="output-grid">
               <div><span>Direct materials total</span><strong id="outMaterials">$0.00</strong></div>
               <div><span>Development recovery per unit</span><strong id="outDevelopment">$0.00</strong></div>
@@ -324,6 +267,20 @@
               <div><span>Wholesale viable?</span><strong id="outWholesaleViable">Needs inputs</strong></div>
             </div>
             <div class="warning-box" id="pricingWarning" hidden></div>
+            <div class="button-row">
+              <button type="button" id="copySummaryButton">Copy pricing summary</button>
+              <button type="button" id="exportJsonButton">Export JSON</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary>
+            <span>8. Competitor Comparison</span>
+            <strong id="competitorPosition">No data</strong>
+          </summary>
+          <div class="section-body">
+            <div class="competitor-table" id="competitorFields"></div>
             <div class="output-grid compact-output">
               <div><span>Inkson proposed retail</span><strong id="compInksonRetail">$0.00</strong></div>
               <div><span>Lowest competitor price</span><strong id="compLowest">$0.00</strong></div>
@@ -331,16 +288,8 @@
               <div><span>Average competitor price</span><strong id="compAverage">$0.00</strong></div>
               <div><span>Position</span><strong id="compPosition">No data</strong></div>
             </div>
-            <div class="button-row">
-              <button type="button" id="copySummaryButton">Copy pricing summary</button>
-              <button type="button" id="exportJsonButton">Export JSON</button>
-            </div>
           </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="primary" id="saveAtEndButton">Save costing</button>
-          </div>
-        </section>
+        </details>
       </form>
     </main>
 
