@@ -56,6 +56,7 @@ const overheadFields = [
 const competitorCount = 5;
 let labourMode = "simple";
 let currentCostingId = null;
+let currentStep = 0;
 let calculations = {};
 
 const money = new Intl.NumberFormat("en-AU", {
@@ -115,6 +116,38 @@ function saveTheme(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
   } catch {}
+}
+
+function wizardPanels() {
+  return $$(".step-panel");
+}
+
+function updateWizardStatus() {
+  const panels = wizardPanels();
+  const totalSteps = panels.length;
+  const activePanel = panels[currentStep];
+  const stepTitle = activePanel?.dataset.stepTitle || "";
+  setText("wizardStepCount", `Step ${currentStep + 1} of ${totalSteps}`);
+  setText("wizardStepTitle", stepTitle);
+  const progress = $("#wizardProgress");
+  if (progress && totalSteps) {
+    progress.style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
+  }
+}
+
+function showStep(index, shouldScroll = true) {
+  const panels = wizardPanels();
+  if (!panels.length) return;
+  currentStep = Math.max(0, Math.min(index, panels.length - 1));
+  panels.forEach((panel, panelIndex) => {
+    const isActive = panelIndex === currentStep;
+    panel.classList.toggle("is-active", isActive);
+    panel.setAttribute("aria-hidden", String(!isActive));
+  });
+  updateWizardStatus();
+  if (shouldScroll) {
+    $("#costingForm").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 function createNumberField(id, label, value = 0) {
@@ -476,6 +509,7 @@ function applyFormState(state) {
   $("#materialsTable tbody").innerHTML = "";
   (state.materials?.length ? state.materials : defaultMaterials.map((name) => ({ name }))).forEach(createMaterialRow);
   setLabourMode(labourMode);
+  showStep(0, false);
   updateDisplay();
 }
 
@@ -560,6 +594,7 @@ function resetForm() {
   $("#monthlyProductionUnits").value = "100";
   loadDefaultMaterials();
   setLabourMode("simple");
+  showStep(0, false);
   renderSavedCostings();
   updateDisplay();
   requestAnimationFrame(() => $("#garmentName").focus());
@@ -652,7 +687,16 @@ function bindEvents() {
   $("#simpleLabourButton").addEventListener("click", () => setLabourMode("simple"));
   $("#advancedLabourButton").addEventListener("click", () => setLabourMode("advanced"));
 
+  $$(".next-step").forEach((button) => {
+    button.addEventListener("click", () => showStep(currentStep + 1));
+  });
+
+  $$(".back-step").forEach((button) => {
+    button.addEventListener("click", () => showStep(currentStep - 1));
+  });
+
   $("#saveButton").addEventListener("click", saveCurrentCosting);
+  $("#saveAtEndButton").addEventListener("click", saveCurrentCosting);
   $("#duplicateButton").addEventListener("click", duplicateCurrentCosting);
   $("#deleteButton").addEventListener("click", deleteCurrentCosting);
   $("#newButton").addEventListener("click", resetForm);
@@ -679,5 +723,6 @@ createStaticFields();
 loadDefaultMaterials();
 bindEvents();
 applyTheme(document.documentElement.dataset.theme);
+showStep(0, false);
 renderSavedCostings();
 updateDisplay();
