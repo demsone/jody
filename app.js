@@ -1,6 +1,6 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
-const APP_BUILD = "v1.01";
+const APP_BUILD = "v2.00";
 
 const defaultMaterials = [
   "Main fabric",
@@ -65,6 +65,13 @@ const money = new Intl.NumberFormat("en-AU", {
   currency: "AUD",
 });
 
+const wholeMoney = new Intl.NumberFormat("en-AU", {
+  style: "currency",
+  currency: "AUD",
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+});
+
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -85,6 +92,11 @@ function setText(id, value) {
 function formatMoney(value) {
   const safeValue = Number.isFinite(value) ? value : 0;
   return money.format(safeValue);
+}
+
+function formatWholeMoney(value) {
+  const safeValue = Number.isFinite(value) ? value : 0;
+  return wholeMoney.format(safeValue);
 }
 
 function formatPercent(value) {
@@ -145,9 +157,15 @@ function showStep(index, shouldScroll = true) {
     panel.classList.toggle("is-active", isActive);
     panel.setAttribute("aria-hidden", String(!isActive));
   });
+  const activePanel = panels[currentStep];
+  const liveSummary = $("#liveSummary");
+  if (liveSummary) {
+    liveSummary.hidden = activePanel?.classList.contains("commercial-step");
+  }
+  document.body.dataset.step = String(currentStep + 1);
   updateWizardStatus();
   if (shouldScroll) {
-    $("#costingForm").scrollIntoView({ behavior: "smooth", block: "start" });
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
   }
 }
 
@@ -182,26 +200,28 @@ function createStaticFields() {
     const n = index + 1;
     return `
       <div class="competitor-card">
-        <h3>Competitor ${n}</h3>
-        <div class="field">
-          <label for="competitor${n}Brand">Brand name</label>
-          <input id="competitor${n}Brand" name="competitor${n}Brand" type="text" />
-        </div>
-        <div class="field">
-          <label for="competitor${n}Product">Product name</label>
-          <input id="competitor${n}Product" name="competitor${n}Product" type="text" />
-        </div>
-        <div class="field">
-          <label for="competitor${n}Url">Product URL</label>
-          <input id="competitor${n}Url" name="competitor${n}Url" type="url" />
-        </div>
-        <div class="field">
-          <label for="competitor${n}Price">Retail price</label>
-          <input id="competitor${n}Price" name="competitor${n}Price" type="number" min="0" step="0.01" inputmode="decimal" />
-        </div>
-        <div class="field">
-          <label for="competitor${n}Notes">Notes</label>
-          <textarea id="competitor${n}Notes" name="competitor${n}Notes" rows="2"></textarea>
+        <h2><span>Competitor</span> <strong>${n}</strong></h2>
+        <div class="competitor-grid">
+          <div class="field">
+            <label for="competitor${n}Brand">Brand name</label>
+            <input id="competitor${n}Brand" name="competitor${n}Brand" type="text" />
+          </div>
+          <div class="field">
+            <label for="competitor${n}Product">Product name</label>
+            <input id="competitor${n}Product" name="competitor${n}Product" type="text" />
+          </div>
+          <div class="field">
+            <label for="competitor${n}Url">Product URL</label>
+            <input id="competitor${n}Url" name="competitor${n}Url" type="url" />
+          </div>
+          <div class="field">
+            <label for="competitor${n}Price">Retail price</label>
+            <input id="competitor${n}Price" name="competitor${n}Price" type="number" min="0" step="0.01" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="competitor${n}Notes">Notes</label>
+            <textarea id="competitor${n}Notes" name="competitor${n}Notes" rows="2"></textarea>
+          </div>
         </div>
       </div>
     `;
@@ -211,12 +231,19 @@ function createStaticFields() {
 function createMaterialRow(material = {}) {
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input class="material-name" type="text" value="${escapeAttribute(material.name || "")}" placeholder="Enter material name" aria-label="Material item name" /></td>
-    <td><input class="material-unit-cost" type="number" min="0" step="0.01" value="${material.unitCost || 0}" inputmode="decimal" aria-label="Unit cost" /></td>
-    <td><input class="material-quantity" type="number" min="0" step="0.01" value="${material.quantity || 0}" inputmode="decimal" aria-label="Quantity used" /></td>
-    <td><input class="material-wastage" type="number" min="0" step="0.1" value="${material.wastage || 0}" inputmode="decimal" aria-label="Wastage percent" /></td>
-    <td class="row-total">$0.00</td>
-    <td><button class="remove-row" type="button" aria-label="Remove material row" title="Remove row">X</button></td>
+    <td data-label="Item"><input class="material-name" type="text" value="${escapeAttribute(material.name || "")}" placeholder="Enter material name" aria-label="Material item name" /></td>
+    <td data-label="Unit cost"><input class="material-unit-cost" type="number" min="0" step="0.01" value="${material.unitCost || 0}" inputmode="decimal" aria-label="Unit cost" /></td>
+    <td data-label="Qty"><input class="material-quantity" type="number" min="0" step="0.01" value="${material.quantity || 0}" inputmode="decimal" aria-label="Quantity used" /></td>
+    <td data-label="Waste %"><input class="material-wastage" type="number" min="0" step="0.1" value="${material.wastage || 0}" inputmode="decimal" aria-label="Wastage percent" /></td>
+    <td class="row-total-cell" data-label="Total"><span class="row-total">$0.00</span></td>
+    <td class="material-actions">
+      <button class="row-icon reset-row" type="button" aria-label="Reset material row" title="Reset row">
+        <img src="assets/icons/refresh.svg" alt="" />
+      </button>
+      <button class="row-icon remove-row" type="button" aria-label="Remove material row" title="Remove row">
+        <img src="assets/icons/bin-1.svg" alt="" />
+      </button>
+    </td>
   `;
   $("#materialsTable tbody").appendChild(tr);
   return tr;
@@ -413,9 +440,38 @@ function calculateCompetitors(retailPrice) {
   return { lowest, highest, average, position: "Within market", className: "text-good" };
 }
 
+function getStatusState(result) {
+  if (!result || result.retailPrice <= 0) return "neutral";
+  if (result.denominator <= 0 || result.wholesaleStatus === "Not wholesale viable") return "danger";
+  if (result.wholesaleStatus === "Weak wholesale margin") return "warning";
+  if (result.wholesaleStatus === "Wholesale viable") return "success";
+  return "neutral";
+}
+
+function getStatusIcon(state) {
+  if (state === "success") return "assets/icons/tick.svg";
+  if (state === "danger" || state === "warning") return "assets/icons/warning.svg";
+  return "assets/icons/info.svg";
+}
+
+function setElementClass(element, baseClass, state) {
+  if (!element) return;
+  element.className = `${baseClass} summary-state-${state}`;
+}
+
+function updateCurrentCostingLabel() {
+  const select = $("#savedCostings");
+  if (!select || currentCostingId) return;
+  const option = select.querySelector('option[value=""]');
+  if (option) option.textContent = "Satchwell Skirt";
+}
+
 function updateDisplay() {
   calculations = calculatePricing();
   const competitor = calculateCompetitors(calculations.retailPrice);
+  const state = getStatusState(calculations);
+  const statusIcon = getStatusIcon(state);
+  const statusText = calculations.warning || calculations.wholesaleStatus;
 
   setText("materialsTotal", formatMoney(calculations.materials));
   setText("developmentPerUnit", `${formatMoney(calculations.development.perUnit)} / unit`);
@@ -429,38 +485,31 @@ function updateDisplay() {
   setText("outOverhead", formatMoney(calculations.overhead.perUnit));
   setText("outSelling", formatMoney(calculations.sellingTotal));
   setText("outUnitCost", formatMoney(calculations.unitCost));
-  setText("outRetail", formatMoney(calculations.retailPrice));
+  setText("outRetail", formatWholeMoney(calculations.retailPrice));
   setText("outGrossProfit", formatMoney(calculations.grossProfit));
   setText("outGrossMargin", formatPercent(calculations.grossMargin));
   setText("outWholesale", formatMoney(calculations.wholesalePrice));
   setText("outWholesaleProfit", formatMoney(calculations.wholesaleProfit));
   setText("outWholesaleViable", calculations.wholesaleStatus);
 
-  setText("summaryRetail", formatMoney(calculations.retailPrice));
+  setText("summaryRetail", formatWholeMoney(calculations.retailPrice));
   setText("summaryUnitCost", formatMoney(calculations.unitCost));
   setText("summaryMargin", formatPercent(calculations.grossMargin));
   setText("summaryWholesale", formatMoney(calculations.wholesalePrice));
   setText("summaryWholesaleProfit", formatMoney(calculations.wholesaleProfit));
+  updateCurrentCostingLabel();
 
   const summaryStatus = $("#summaryStatus");
-  const pricingHealth = $("#pricingHealth");
   const wholesaleOutput = $("#outWholesaleViable");
-  [summaryStatus, pricingHealth, wholesaleOutput].forEach((element) => {
-    element.className = element === summaryStatus ? "status-pill" : "";
-  });
-
-  summaryStatus.textContent = calculations.wholesaleStatus;
-  pricingHealth.textContent = calculations.wholesaleStatus;
-  wholesaleOutput.className = calculations.wholesaleClass;
-  if (calculations.wholesaleClass.includes("good")) summaryStatus.classList.add("good");
-  if (calculations.wholesaleClass.includes("warn")) summaryStatus.classList.add("warn");
-  if (calculations.wholesaleClass.includes("bad")) summaryStatus.classList.add("bad");
-  pricingHealth.className = calculations.wholesaleClass;
-
-  const warning = $("#pricingWarning");
-  warning.hidden = !calculations.warning;
-  warning.textContent = calculations.warning;
-  warning.className = `warning-box ${calculations.warningClass}`.trim();
+  const summaryStatusIcon = $("#summaryStatusIcon");
+  const pricingWarningIcon = $("#pricingWarningIcon");
+  setElementClass($("#summaryRetailCard"), "summary-card retail-card", state);
+  setElementClass($("#pricingSummaryCard"), "pricing-summary", state);
+  if (summaryStatus) summaryStatus.textContent = calculations.wholesaleStatus;
+  if (summaryStatusIcon) summaryStatusIcon.src = statusIcon;
+  if (pricingWarningIcon) pricingWarningIcon.src = statusIcon;
+  setText("pricingWarningText", statusText);
+  if (wholesaleOutput) wholesaleOutput.className = calculations.wholesaleClass;
 
   setText("compInksonRetail", formatMoney(calculations.retailPrice));
   setText("compLowest", formatMoney(competitor.lowest));
@@ -468,8 +517,10 @@ function updateDisplay() {
   setText("compAverage", formatMoney(competitor.average));
   setText("compPosition", competitor.position);
   setText("competitorPosition", competitor.position);
-  $("#compPosition").className = competitor.className;
-  $("#competitorPosition").className = competitor.className;
+  const compPosition = $("#compPosition");
+  const competitorPosition = $("#competitorPosition");
+  if (compPosition) compPosition.className = competitor.className;
+  if (competitorPosition) competitorPosition.className = competitor.className;
 }
 
 function getFormState() {
@@ -531,7 +582,7 @@ function writeSavedCostings(costings) {
 function renderSavedCostings() {
   const select = $("#savedCostings");
   const costings = readSavedCostings();
-  select.innerHTML = '<option value="">Current unsaved costing</option>';
+  select.innerHTML = '<option value="">Satchwell Skirt</option>';
   costings
     .slice()
     .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))
@@ -672,6 +723,16 @@ function bindEvents() {
   $("#costingForm").addEventListener("change", updateDisplay);
 
   $("#materialsTable").addEventListener("click", (event) => {
+    const resetButton = event.target.closest(".reset-row");
+    if (resetButton) {
+      const row = resetButton.closest("tr");
+      $(".material-unit-cost", row).value = "0";
+      $(".material-quantity", row).value = "0";
+      $(".material-wastage", row).value = "0";
+      updateDisplay();
+      return;
+    }
+
     const button = event.target.closest(".remove-row");
     if (!button) return;
     button.closest("tr").remove();
@@ -705,8 +766,8 @@ function bindEvents() {
   $("#newButton").addEventListener("click", resetForm);
   $("#exportJsonButton").addEventListener("click", exportJson);
   $("#copySummaryButton").addEventListener("click", copySummary);
-  $("#printButton").addEventListener("click", () => window.print());
-  $("#themeToggle").addEventListener("click", () => {
+  $("#printButton")?.addEventListener("click", () => window.print());
+  $("#themeToggle")?.addEventListener("click", () => {
     const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     applyTheme(nextTheme);
     saveTheme(nextTheme);

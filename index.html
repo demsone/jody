@@ -4,254 +4,233 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Inkson Garment Cost Calculator</title>
-    <script>
-      try {
-        const savedTheme = localStorage.getItem("inkson-theme-v1");
-        if (savedTheme === "dark") document.documentElement.dataset.theme = "dark";
-      } catch {}
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;800&family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="app-header">
-      <div>
-        <p class="eyebrow">Inkson <span class="build-number" id="buildNumber">v1.01</span></p>
-        <h1>Garment Cost Calculator</h1>
-      </div>
-      <div class="header-actions">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Dark</button>
-        <button class="icon-button" id="printButton" type="button" title="Print costing sheet">Print</button>
-      </div>
-    </header>
-
     <main class="app-shell">
-      <form id="costingForm" autocomplete="off">
-        <section class="summary-panel live-summary" aria-label="Live pricing summary">
-          <div class="summary-topline">
+      <form id="costingForm" class="costing-form" autocomplete="off">
+        <section class="toolbar" aria-label="Costing actions">
+          <div class="saved-costing">
+            <select id="savedCostings" aria-label="Saved costings"></select>
+          </div>
+          <div class="toolbar-actions" aria-label="Costing tools">
+            <button type="button" id="newButton" class="icon-action" title="New costing" aria-label="New costing">
+              <img src="assets/icons/new.svg" alt="" />
+            </button>
+            <button type="button" id="saveButton" class="icon-action" title="Save costing" aria-label="Save costing">
+              <img src="assets/icons/save.svg" alt="" />
+            </button>
+            <button type="button" id="duplicateButton" class="icon-action" title="Duplicate costing" aria-label="Duplicate costing">
+              <img src="assets/icons/files.svg" alt="" />
+            </button>
+            <button type="button" id="deleteButton" class="icon-action" title="Delete costing" aria-label="Delete costing">
+              <img src="assets/icons/trash-bin-3.svg" alt="" />
+            </button>
+          </div>
+        </section>
+
+        <section class="live-summary-panel" id="liveSummary" aria-label="Live pricing summary">
+          <article class="summary-card metric-card">
+            <img src="assets/icons/total-unit-cost.svg" alt="" />
+            <span>Total<br />unit cost</span>
+            <strong id="summaryUnitCost">$0.00</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/gross-margin.svg" alt="" />
+            <span>Gross<br />margin</span>
+            <strong id="summaryMargin">0.0%</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/wholesale.svg" alt="" />
+            <span>Wholesale</span>
+            <strong id="summaryWholesale">$0.00</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/wholesale-profit.svg" alt="" />
+            <span>Wholesale<br />profit</span>
+            <strong id="summaryWholesaleProfit">$0.00</strong>
+          </article>
+          <article class="summary-card retail-card summary-state-neutral" id="summaryRetailCard">
             <span>Recommended retail</span>
             <strong id="summaryRetail">$0.00</strong>
-          </div>
-          <div class="status-pill" id="summaryStatus">Needs inputs</div>
-          <dl class="summary-grid">
-            <div>
-              <dt>Total unit cost</dt>
-              <dd id="summaryUnitCost">$0.00</dd>
-            </div>
-            <div>
-              <dt>Gross margin</dt>
-              <dd id="summaryMargin">0.0%</dd>
-            </div>
-            <div>
-              <dt>Wholesale</dt>
-              <dd id="summaryWholesale">$0.00</dd>
-            </div>
-            <div>
-              <dt>Wholesale profit</dt>
-              <dd id="summaryWholesaleProfit">$0.00</dd>
-            </div>
-          </dl>
+            <img id="summaryStatusIcon" src="assets/icons/info.svg" alt="" />
+            <small id="summaryStatus">Needs inputs</small>
+          </article>
         </section>
 
-        <section class="wizard-status" aria-live="polite">
-          <div>
-            <p id="wizardStepCount">Step 1 of 8</p>
-            <h2 id="wizardStepTitle">Garment basics</h2>
-          </div>
-          <div class="progress-track" aria-hidden="true">
-            <div id="wizardProgress"></div>
-          </div>
-        </section>
-
-        <section class="toolbar">
-          <div class="field compact">
-            <label for="savedCostings">Saved costings</label>
-            <select id="savedCostings"></select>
-          </div>
-          <div class="button-row">
-            <button type="button" id="newButton">New</button>
-            <button type="button" id="saveButton" class="primary">Save</button>
-            <button type="button" id="duplicateButton">Duplicate</button>
-            <button type="button" id="deleteButton" class="danger">Delete</button>
-          </div>
-        </section>
-
-        <section class="step-panel card is-active" data-step-title="Garment basics">
-          <div class="step-head">
-            <p>Step 1</p>
-            <h2>Garment basics</h2>
-          </div>
-          <div class="section-body two-column">
+        <section class="step-panel is-active" data-step-title="Garment Basics">
+          <header class="step-header">
+            <p>Step 1 of 8</p>
+            <h1>Garment Basics</h1>
+          </header>
+          <div class="form-grid">
             <div class="field">
-              <label for="garmentName">Garment name</label>
-              <input id="garmentName" name="garmentName" type="text" value="Baggy flared stylist pant" placeholder="Enter garment name" />
+              <label for="garmentName">Garment Name</label>
+              <input id="garmentName" name="garmentName" type="text" value="Baggy Flared Stylist Pant" placeholder="Enter garment name" />
             </div>
             <div class="field">
-              <label for="styleCode">Style code</label>
+              <label for="styleCode">Style Code</label>
               <input id="styleCode" name="styleCode" type="text" value="INK-PANT-001" placeholder="Enter style code" />
             </div>
             <div class="field">
-              <label for="productType">Product type</label>
+              <label for="productType">Product Type</label>
               <input id="productType" name="productType" type="text" value="Pant" placeholder="Enter product type" />
             </div>
             <div class="field">
-              <label for="productionQuantity">Production quantity</label>
+              <label for="productionQuantity">Production Quantity</label>
               <input id="productionQuantity" name="productionQuantity" type="number" min="1" step="1" value="50" inputmode="decimal" />
             </div>
             <div class="field">
-              <label for="targetMargin">Target gross margin %</label>
+              <label for="targetMargin">Target Gross Margin %</label>
               <input id="targetMargin" name="targetMargin" type="number" min="0" max="95" step="0.1" value="70" inputmode="decimal" />
             </div>
-            <fieldset class="field radio-group">
-              <legend>GST included?</legend>
-              <label><input type="radio" name="gstIncluded" value="yes" checked /> Yes</label>
-              <label><input type="radio" name="gstIncluded" value="no" /> No</label>
+            <fieldset class="field radio-field">
+              <legend>GST Included?</legend>
+              <div class="radio-options">
+                <label><input type="radio" name="gstIncluded" value="yes" checked /> Yes</label>
+                <label><input type="radio" name="gstIncluded" value="no" /> No</label>
+              </div>
             </fieldset>
-            <div class="field">
-              <label for="productionModel">Production model</label>
+            <div class="field select-field">
+              <label for="productionModel">Production Model</label>
               <select id="productionModel" name="productionModel">
                 <option value="internal">Internal</option>
                 <option value="local maker">Local maker</option>
                 <option value="offshore">Offshore</option>
               </select>
             </div>
-            <div class="field">
-              <label for="pricingModel">Pricing model</label>
+            <div class="field select-field">
+              <label for="pricingModel">Pricing Model</label>
               <select id="pricingModel" name="pricingModel">
-                <option value="DTC only">DTC only</option>
+                <option value="DTC only">DTC Only</option>
                 <option value="DTC + wholesale">DTC + wholesale</option>
               </select>
             </div>
           </div>
           <div class="wizard-actions">
-            <span></span>
-            <button type="button" class="next-step primary">Next</button>
-          </div>
-        </section>
-
-        <section class="step-panel card" data-step-title="Materials only">
-          <div class="step-head">
-            <p>Step 2</p>
-            <h2>Materials only</h2>
-            <strong id="materialsTotal">$0.00</strong>
-          </div>
-          <div class="section-body">
-            <div class="table-wrap">
-              <table class="cost-table" id="materialsTable">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Unit cost</th>
-                    <th>Qty</th>
-                    <th>Waste %</th>
-                    <th>Total</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <button type="button" id="addMaterialButton">Add material</button>
-          </div>
-          <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card" data-step-title="Labour">
-          <div class="step-head">
-            <p>Step 3</p>
-            <h2>Labour</h2>
-            <strong id="labourTotal">$0.00</strong>
+        <section class="step-panel" data-step-title="Materials Only">
+          <header class="step-header">
+            <p>Step 2 of 8</p>
+            <h1>Materials Only</h1>
+          </header>
+          <div class="materials-wrap">
+            <table class="cost-table" id="materialsTable">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Unit cost</th>
+                  <th>Qty</th>
+                  <th>Waste %</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
-          <div class="section-body">
-            <div class="segmented" role="group" aria-label="Labour mode">
-              <button type="button" id="simpleLabourButton" class="active">Simple</button>
-              <button type="button" id="advancedLabourButton">Advanced</button>
+          <div class="wizard-actions single-selection">
+            <button type="button" class="back-step">Back</button>
+            <button type="button" class="next-step">Next</button>
+            <button type="button" id="addMaterialButton" class="utility-button">Add Material</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-title="Labour">
+          <header class="step-header">
+            <p>Step 3 of 8</p>
+            <h1>Labour</h1>
+          </header>
+          <div class="tabs" role="group" aria-label="Labour mode">
+            <button type="button" id="simpleLabourButton" class="active">Simple</button>
+            <button type="button" id="advancedLabourButton">Advanced</button>
+          </div>
+          <div class="form-grid labour-fields" id="simpleLabourFields">
+            <div class="field">
+              <label for="simpleLabourHours">Total labour hours per garment</label>
+              <input id="simpleLabourHours" name="simpleLabourHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
             </div>
-            <div class="two-column" id="simpleLabourFields">
-              <div class="field">
-                <label for="simpleLabourHours">Total labour hours per garment</label>
-                <input id="simpleLabourHours" name="simpleLabourHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="simpleHourlyRate">Hourly rate</label>
-                <input id="simpleHourlyRate" name="simpleHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
-              </div>
+            <div class="field">
+              <label for="simpleHourlyRate">Hourly Rate</label>
+              <input id="simpleHourlyRate" name="simpleHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
             </div>
-            <div class="two-column hidden" id="advancedLabourFields">
-              <div class="field">
-                <label for="cuttingHours">Cutting hours</label>
-                <input id="cuttingHours" name="cuttingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="sewingHours">Sewing hours</label>
-                <input id="sewingHours" name="sewingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="pressingHours">Pressing hours</label>
-                <input id="pressingHours" name="pressingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="finishingHours">Finishing hours</label>
-                <input id="finishingHours" name="finishingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="qcHours">QC inspection hours</label>
-                <input id="qcHours" name="qcHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="packingHours">Packing hours</label>
-                <input id="packingHours" name="packingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label for="advancedHourlyRate">Hourly rate</label>
-                <input id="advancedHourlyRate" name="advancedHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
-              </div>
+          </div>
+          <div class="form-grid labour-fields hidden" id="advancedLabourFields">
+            <div class="field">
+              <label for="cuttingHours">Cutting hours</label>
+              <input id="cuttingHours" name="cuttingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="sewingHours">Sewing hours</label>
+              <input id="sewingHours" name="sewingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="pressingHours">Pressing hours</label>
+              <input id="pressingHours" name="pressingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="finishingHours">Finishing hours</label>
+              <input id="finishingHours" name="finishingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="qcHours">QC inspection hours</label>
+              <input id="qcHours" name="qcHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="packingHours">Packing hours</label>
+              <input id="packingHours" name="packingHours" type="number" min="0" step="0.05" value="0" inputmode="decimal" />
+            </div>
+            <div class="field">
+              <label for="advancedHourlyRate">Hourly Rate</label>
+              <input id="advancedHourlyRate" name="advancedHourlyRate" type="number" min="0" step="0.01" value="0" inputmode="decimal" />
             </div>
           </div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card" data-step-title="Development costs">
-          <div class="step-head">
-            <p>Step 4</p>
-            <h2>Development costs</h2>
-            <strong id="developmentPerUnit">$0.00 / unit</strong>
-          </div>
-          <div class="section-body two-column" id="developmentFields"></div>
+        <section class="step-panel" data-step-title="Development costs">
+          <header class="step-header">
+            <p>Step 4 of 8</p>
+            <h1>Development costs</h1>
+          </header>
+          <div class="form-grid" id="developmentFields"></div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card" data-step-title="Overheads">
-          <div class="step-head">
-            <p>Step 5</p>
-            <h2>Overheads</h2>
-            <strong id="overheadPerUnit">$0.00 / unit</strong>
-          </div>
-          <div class="section-body two-column" id="overheadFields"></div>
+        <section class="step-panel" data-step-title="Overheads">
+          <header class="step-header">
+            <p>Step 5 of 8</p>
+            <h1>Overheads</h1>
+          </header>
+          <div class="form-grid" id="overheadFields"></div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card" data-step-title="Selling costs">
-          <div class="step-head">
-            <p>Step 6</p>
-            <h2>Selling costs</h2>
-            <strong id="sellingTotal">$0.00</strong>
-          </div>
-          <div class="section-body two-column">
+        <section class="step-panel" data-step-title="Selling costs">
+          <header class="step-header">
+            <p>Step 6 of 8</p>
+            <h1>Selling costs</h1>
+          </header>
+          <div class="form-grid">
             <div class="field">
               <label for="paymentGatewayPercent">Payment gateway %</label>
               <input id="paymentGatewayPercent" name="paymentGatewayPercent" type="number" min="0" step="0.1" value="1.8" inputmode="decimal" />
@@ -284,62 +263,78 @@
           </div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Next</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card" data-step-title="Market comparison">
-          <div class="step-head">
-            <p>Step 7</p>
-            <h2>Market comparison</h2>
-            <strong id="competitorPosition">No data</strong>
-          </div>
-          <div class="section-body">
-            <div class="competitor-table" id="competitorFields"></div>
-          </div>
+        <section class="step-panel" data-step-title="Market comparison">
+          <header class="step-header">
+            <p>Step 7 of 8</p>
+            <h1>Market comparison</h1>
+          </header>
+          <div class="competitor-table" id="competitorFields"></div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step primary">Commercial output</button>
+            <button type="button" class="next-step">Next</button>
           </div>
         </section>
 
-        <section class="step-panel card commercial-step" data-step-title="Commercial Output">
-          <div class="step-head">
-            <p>Final screen</p>
-            <h2>Commercial Output</h2>
-            <strong id="pricingHealth">Needs inputs</strong>
+        <section class="step-panel commercial-step" data-step-title="Commercial Output">
+          <header class="step-header">
+            <p>Final Screen</p>
+            <h1>Commercial Output</h1>
+          </header>
+          <section class="pricing-summary summary-state-neutral" id="pricingSummaryCard">
+            <h2>Recommended DTC Retail Price</h2>
+            <strong id="outRetail">$0.00</strong>
+            <p id="pricingWarning">
+              <img id="pricingWarningIcon" src="assets/icons/info.svg" alt="" />
+              <span id="pricingWarningText">Needs inputs</span>
+            </p>
+          </section>
+          <div class="output-grid">
+            <section class="output-section">
+              <h2>Production Costs</h2>
+              <div class="output-pairs">
+                <div><span>Direct materials total</span><strong id="outMaterials">$0.00</strong></div>
+                <div><span>Development recovery per unit</span><strong id="outDevelopment">$0.00</strong></div>
+                <div><span>Labour cost per unit</span><strong id="outLabour">$0.00</strong></div>
+                <div><span>Overhead allocation per unit</span><strong id="outOverhead">$0.00</strong></div>
+                <div><span>Selling cost estimate</span><strong id="outSelling">$0.00</strong></div>
+                <div><span>Total unit cost</span><strong id="outUnitCost">$0.00</strong></div>
+              </div>
+            </section>
+            <section class="output-section">
+              <h2>Profit Margins</h2>
+              <div class="output-pairs">
+                <div><span>Gross profit per unit</span><strong id="outGrossProfit">$0.00</strong></div>
+                <div><span>Gross margin %</span><strong id="outGrossMargin">0.0%</strong></div>
+                <div><span>Wholesale price</span><strong id="outWholesale">$0.00</strong></div>
+                <div><span>Wholesale profit per unit</span><strong id="outWholesaleProfit">$0.00</strong></div>
+                <div><span>Wholesale viable?</span><strong id="outWholesaleViable">Needs inputs</strong></div>
+              </div>
+            </section>
+            <section class="output-section">
+              <h2>Retail Expectations</h2>
+              <div class="output-pairs">
+                <div><span>Inkson proposed retail</span><strong id="compInksonRetail">$0.00</strong></div>
+                <div><span>Lowest competitor price</span><strong id="compLowest">$0.00</strong></div>
+                <div><span>Highest competitor price</span><strong id="compHighest">$0.00</strong></div>
+                <div><span>Average competitor price</span><strong id="compAverage">$0.00</strong></div>
+                <div><span>Position</span><strong id="compPosition">No data</strong></div>
+              </div>
+            </section>
           </div>
-          <div class="section-body">
-            <div class="output-grid">
-              <div><span>Direct materials total</span><strong id="outMaterials">$0.00</strong></div>
-              <div><span>Development recovery per unit</span><strong id="outDevelopment">$0.00</strong></div>
-              <div><span>Labour cost per unit</span><strong id="outLabour">$0.00</strong></div>
-              <div><span>Overhead allocation per unit</span><strong id="outOverhead">$0.00</strong></div>
-              <div><span>Selling cost estimate</span><strong id="outSelling">$0.00</strong></div>
-              <div><span>Total unit cost</span><strong id="outUnitCost">$0.00</strong></div>
-              <div class="hero-output"><span>Recommended DTC retail price</span><strong id="outRetail">$0.00</strong></div>
-              <div><span>Gross profit per unit</span><strong id="outGrossProfit">$0.00</strong></div>
-              <div><span>Gross margin %</span><strong id="outGrossMargin">0.0%</strong></div>
-              <div><span>Wholesale price</span><strong id="outWholesale">$0.00</strong></div>
-              <div><span>Wholesale profit per unit</span><strong id="outWholesaleProfit">$0.00</strong></div>
-              <div><span>Wholesale viable?</span><strong id="outWholesaleViable">Needs inputs</strong></div>
+          <div class="wizard-actions final-actions">
+            <div class="nav-actions">
+              <button type="button" class="back-step">Back</button>
+              <button type="button" class="next-step">Next</button>
             </div>
-            <div class="warning-box" id="pricingWarning" hidden></div>
-            <div class="output-grid compact-output">
-              <div><span>Inkson proposed retail</span><strong id="compInksonRetail">$0.00</strong></div>
-              <div><span>Lowest competitor price</span><strong id="compLowest">$0.00</strong></div>
-              <div><span>Highest competitor price</span><strong id="compHighest">$0.00</strong></div>
-              <div><span>Average competitor price</span><strong id="compAverage">$0.00</strong></div>
-              <div><span>Position</span><strong id="compPosition">No data</strong></div>
+            <div class="commercial-actions">
+              <button type="button" id="saveAtEndButton" class="utility-button">Save costing</button>
+              <button type="button" id="copySummaryButton" class="utility-button">Copy pricing summary</button>
+              <button type="button" id="exportJsonButton" class="utility-button">Export JSON</button>
             </div>
-            <div class="button-row">
-              <button type="button" id="copySummaryButton">Copy pricing summary</button>
-              <button type="button" id="exportJsonButton">Export JSON</button>
-            </div>
-          </div>
-          <div class="wizard-actions">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="primary" id="saveAtEndButton">Save costing</button>
           </div>
         </section>
       </form>

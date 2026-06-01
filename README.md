@@ -2,13 +2,14 @@
 
 Static mobile-first costing calculator for Inkson garments.
 
-Current build: `v1.01`
+Current build: `v2.00`
 
 ## Files
 
 - `index.html` - app structure
 - `style.css` - responsive styling
 - `app.js` - calculations, local saves, exports, and UI state
+- `assets/icons/` - v2 icon assets exported from Figma
 
 ## Run Locally
 
