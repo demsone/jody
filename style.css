@@ -18,6 +18,8 @@
   --button-icon: #f4f1e96b;
   --button-border: #f4f1e952;
   --button-fill: #f4f1e905;
+  --brand-500: #f4f1e9;
+  --table-body: #1d1d1e7d;
   --form-width: 1057px;
   --mobile-width: 347px;
   --radius-card: 8px;
@@ -159,6 +161,10 @@ textarea:focus-visible {
   border-radius: var(--radius-card);
   background: var(--panel-tint);
   text-align: center;
+}
+
+#summaryRetailCard {
+  background: transparent;
 }
 
 .metric-card {
@@ -372,6 +378,11 @@ input[type="number"] {
   opacity: 0.6;
 }
 
+.step-panel[data-step-title="Garment Basics"] .select-field select {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
 .radio-field {
   gap: 14px;
 }
@@ -407,17 +418,19 @@ input[type="number"] {
 }
 
 .tabs button {
-  min-height: 25px;
-  min-width: 80px;
-  padding: 0 16px;
+  min-height: 35px;
+  height: 35px;
+  min-width: 164px;
+  padding: 0 44px;
   border: 0;
+  border-radius: 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .tabs button.active {
-  background: var(--good);
+  background: var(--brand-500);
   color: var(--surface);
 }
 
@@ -447,37 +460,71 @@ input[type="number"] {
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-mono);
+  table-layout: fixed;
+}
+
+.cost-table th:nth-child(1),
+.cost-table td:nth-child(1) {
+  width: 25%;
+}
+
+.cost-table th:nth-child(2),
+.cost-table td:nth-child(2),
+.cost-table th:nth-child(3),
+.cost-table td:nth-child(3),
+.cost-table th:nth-child(4),
+.cost-table td:nth-child(4) {
+  width: 16%;
+}
+
+.cost-table th:nth-child(5),
+.cost-table td:nth-child(5) {
+  width: 13%;
+}
+
+.cost-table th:nth-child(6),
+.cost-table td:nth-child(6) {
+  width: 14%;
 }
 
 .cost-table th {
   height: 45px;
   padding: 12px 17px;
+  border: 1px solid var(--border-strong);
   border-bottom: 1px solid var(--border-strong);
   color: var(--text);
   font-family: var(--font-main);
   font-size: 14px;
   font-weight: 900;
   letter-spacing: 1px;
-  text-align: left;
+  text-align: center;
   text-transform: uppercase;
 }
 
 .cost-table td {
-  padding: 10px 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
   border-bottom: 1px solid var(--border-strong);
   vertical-align: middle;
 }
 
 .cost-table input {
-  min-height: 44px;
+  height: 37px;
+  min-height: 37px;
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--surface-3);
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 200;
-  padding: 12px 10px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.cost-table .material-unit-cost,
+.cost-table .material-wastage {
+  border-radius: 20px;
 }
 
 .cost-table .row-total {
@@ -487,13 +534,18 @@ input[type="number"] {
   font-family: var(--font-mono);
   font-size: 15px;
   font-weight: 800;
-  text-align: right;
+  text-align: center;
 }
 
-.material-actions {
+.cost-table .material-actions {
+  padding: 16px 12px;
+}
+
+.material-action-buttons {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
 }
 
 .row-icon {
@@ -523,8 +575,8 @@ input[type="number"] {
   gap: 24px;
   width: 100%;
   padding: 24px 28px;
-  border-radius: var(--radius-card);
-  background: var(--surface);
+  border-radius: 0;
+  background: var(--table-body);
 }
 
 .competitor-card h2 {
@@ -538,7 +590,7 @@ input[type="number"] {
 }
 
 .competitor-card h2 strong {
-  color: var(--neutral);
+  color: var(--text);
   font-size: 13px;
 }
 
@@ -554,6 +606,7 @@ input[type="number"] {
   align-items: center;
   padding: 26px 32px;
   border-top: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .wizard-actions button {
@@ -574,7 +627,7 @@ input[type="number"] {
 }
 
 .single-selection .utility-button {
-  order: 3;
+  margin-left: auto;
 }
 
 .commercial-step {
@@ -583,6 +636,7 @@ input[type="number"] {
 }
 
 .commercial-step .step-header {
+  min-height: auto;
   padding-bottom: 28px;
 }
 
@@ -602,7 +656,8 @@ input[type="number"] {
   margin: 0;
   color: var(--text);
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.4px;
 }
 
 .pricing-summary > strong {
@@ -620,6 +675,36 @@ input[type="number"] {
   color: var(--neutral);
   font-size: 13px;
   font-weight: 400;
+}
+
+.pricing-summary.summary-state-success {
+  border-color: var(--good);
+}
+
+.pricing-summary.summary-state-success > strong,
+.pricing-summary.summary-state-success p,
+.pricing-summary.summary-state-success p span {
+  color: var(--good);
+}
+
+.pricing-summary.summary-state-warning {
+  border-color: var(--neutral);
+}
+
+.pricing-summary.summary-state-warning > strong,
+.pricing-summary.summary-state-warning p,
+.pricing-summary.summary-state-warning p span {
+  color: var(--neutral);
+}
+
+.pricing-summary.summary-state-danger {
+  border-color: var(--bad);
+}
+
+.pricing-summary.summary-state-danger > strong,
+.pricing-summary.summary-state-danger p,
+.pricing-summary.summary-state-danger p span {
+  color: var(--bad);
 }
 
 .pricing-summary img {
@@ -692,6 +777,13 @@ input[type="number"] {
 
 .commercial-actions {
   gap: 8px;
+}
+
+#backToStartButton {
+  width: auto;
+  min-width: 98px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .toast {
@@ -875,6 +967,11 @@ input[type="number"] {
     padding: 0;
   }
 
+  .cost-table th:nth-child(n),
+  .cost-table td:nth-child(n) {
+    width: 100%;
+  }
+
   .cost-table td::before {
     content: attr(data-label);
     display: block;
@@ -932,7 +1029,11 @@ input[type="number"] {
     text-align: right;
   }
 
-  .material-actions {
+  .material-actions::before {
+    display: none !important;
+  }
+
+  .material-action-buttons {
     justify-content: center;
     gap: 28px;
     margin-top: 18px;

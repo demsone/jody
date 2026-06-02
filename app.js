@@ -1,7 +1,7 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
-const APP_BUILD = "v2.02";
+const APP_BUILD = "v2.03";
 const NEW_COSTING_LABEL = "Add new Costing";
 
 const defaultMaterials = [
@@ -239,12 +239,14 @@ function createMaterialRow(material = {}) {
     <td data-label="Waste %"><input class="material-wastage" type="number" min="0" step="0.1" value="${material.wastage || 0}" inputmode="decimal" aria-label="Wastage percent" /></td>
     <td class="row-total-cell" data-label="Total"><span class="row-total">$0.00</span></td>
     <td class="material-actions">
-      <button class="row-icon reset-row" type="button" aria-label="Reset material row" title="Reset row">
-        <img src="assets/icons/refresh.svg" alt="" />
-      </button>
-      <button class="row-icon remove-row" type="button" aria-label="Remove material row" title="Remove row">
-        <img src="assets/icons/bin-1.svg" alt="" />
-      </button>
+      <div class="material-action-buttons">
+        <button class="row-icon reset-row" type="button" aria-label="Reset material row" title="Reset row">
+          <img src="assets/icons/refresh.svg" alt="" />
+        </button>
+        <button class="row-icon remove-row" type="button" aria-label="Remove material row" title="Remove row">
+          <img src="assets/icons/bin-1.svg" alt="" />
+        </button>
+      </div>
     </td>
   `;
   $("#materialsTable tbody").appendChild(tr);
@@ -443,8 +445,9 @@ function calculateCompetitors(retailPrice) {
 }
 
 function getStatusState(result) {
-  if (!result || result.retailPrice <= 0) return "neutral";
+  if (!result) return "neutral";
   if (result.denominator <= 0 || result.wholesaleStatus === "Not wholesale viable") return "danger";
+  if (result.retailPrice <= 0) return "neutral";
   if (result.wholesaleStatus === "Weak wholesale margin") return "warning";
   if (result.wholesaleStatus === "Wholesale viable") return "success";
   return "neutral";
@@ -512,7 +515,6 @@ function updateDisplay() {
   setText("overheadPerUnit", `${formatMoney(calculations.overhead.perUnit)} / unit`);
   setText("sellingTotal", `${formatMoney(calculations.sellingTotal)} / unit`);
   setText("marketAverageTotal", `${formatMoney(competitor.average)} / unit`);
-  setText("commercialUnitTotal", `${formatMoney(calculations.unitCost)} / unit`);
 
   setText("outMaterials", formatMoney(calculations.materials));
   setText("outDevelopment", formatMoney(calculations.development.perUnit));

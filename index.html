@@ -152,8 +152,10 @@
             </table>
           </div>
           <div class="wizard-actions single-selection">
-            <button type="button" class="back-step">Back</button>
-            <button type="button" class="next-step">Next</button>
+            <div class="nav-actions">
+              <button type="button" class="back-step">Back</button>
+              <button type="button" class="next-step">Next</button>
+            </div>
             <button type="button" id="addMaterialButton" class="utility-button">Add Material</button>
           </div>
         </section>
@@ -326,11 +328,7 @@
             <div class="step-heading-copy">
               <p>Final Screen</p>
               <h1>Commercial Output</h1>
-              <strong class="step-live-total" id="commercialUnitTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
           </header>
           <section class="pricing-summary summary-state-neutral" id="pricingSummaryCard">
             <h2>Recommended DTC Retail Price</h2>
