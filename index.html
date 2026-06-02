@@ -16,8 +16,19 @@
     <main class="app-shell">
       <form id="costingForm" class="costing-form" autocomplete="off">
         <section class="toolbar" aria-label="Costing actions">
-          <div class="saved-costing">
-            <select id="savedCostings" aria-label="Saved costings"></select>
+          <div class="saved-costing" id="savedCostingPicker">
+            <select id="savedCostings" class="native-saved-costings" aria-label="Saved costings"></select>
+            <button
+              type="button"
+              id="savedCostingToggle"
+              class="saved-costing-toggle"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              <span id="savedCostingCurrent">Add new Costing</span>
+              <img src="assets/icons/chevron--selector.svg" alt="" />
+            </button>
+            <div id="savedCostingMenu" class="saved-costing-menu" role="listbox" hidden></div>
           </div>
           <div class="toolbar-actions" aria-label="Costing tools">
             <button type="button" id="newButton" class="icon-action" title="New costing" aria-label="New costing">

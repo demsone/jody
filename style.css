@@ -95,32 +95,103 @@ textarea:focus-visible {
 
 .saved-costing {
   position: relative;
-  width: min(448px, 100%);
+  width: min(275px, 100%);
 }
 
-.saved-costing::after {
-  content: "";
+.native-saved-costings {
   position: absolute;
-  top: 50%;
-  right: 11px;
-  width: 14px;
-  height: 8px;
-  background: url("assets/icons/chevron--selector.svg") center / contain no-repeat;
-  transform: translateY(-50%);
+  width: 1px;
+  height: 1px;
+  opacity: 0;
   pointer-events: none;
+  clip-path: inset(50%);
 }
 
-.saved-costing select {
-  appearance: none;
+.saved-costing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  min-height: 54px;
+  min-height: 60px;
   border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
   background: transparent;
   color: var(--text);
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 0;
-  padding: 0 42px 0 0;
+  padding: 22px 0;
+  text-align: left;
+}
+
+.saved-costing-toggle span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-costing-toggle img {
+  width: 21px;
+  height: 12px;
+  flex: 0 0 auto;
+  transition: transform 140ms ease;
+}
+
+.saved-costing.is-open {
+  padding: 20px 0;
+}
+
+.saved-costing.is-open .saved-costing-toggle {
+  border-bottom-color: var(--border);
+}
+
+.saved-costing.is-open .saved-costing-toggle img {
+  transform: rotate(180deg);
+}
+
+.saved-costing-menu {
+  display: grid;
+  width: 100%;
+  max-height: 230px;
+  margin-top: 7px;
+  overflow-y: auto;
+  border: 1px solid #ffffff21;
+  background: rgba(130, 176, 223, 0.06);
+}
+
+.saved-costing-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-bottom: 1px solid #ffffff21;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  padding: 8px 14px;
+  text-align: left;
+}
+
+.saved-costing-option:last-child {
+  border-bottom: 0;
+}
+
+.saved-costing-option.is-current,
+.saved-costing-option:hover,
+.saved-costing-option:focus-visible {
+  background: var(--table-body);
+  color: var(--neutral);
+}
+
+.saved-costing-option.is-empty {
+  color: var(--muted);
+  cursor: default;
 }
 
 .toolbar-actions {
@@ -825,13 +896,31 @@ input[type="number"] {
   }
 
   .saved-costing {
-    width: 190px;
+    width: min(190px, 100%);
   }
 
-  .saved-costing select {
+  .saved-costing-toggle {
     min-height: 38px;
     font-size: 16px;
-    padding-right: 28px;
+    padding: 10px 0;
+  }
+
+  .saved-costing-toggle img {
+    width: 16px;
+    height: 10px;
+  }
+
+  .saved-costing.is-open {
+    padding: 8px 0;
+  }
+
+  .saved-costing-menu {
+    max-height: 184px;
+  }
+
+  .saved-costing-option {
+    min-height: 44px;
+    font-size: 15px;
   }
 
   .toolbar-actions {

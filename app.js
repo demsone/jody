@@ -1,7 +1,7 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
-const APP_BUILD = "v2.03";
+const APP_BUILD = "v2.04";
 const NEW_COSTING_LABEL = "Add new Costing";
 
 const defaultMaterials = [
@@ -483,22 +483,87 @@ function getCurrentCostingTitle() {
   return $("#garmentName").value.trim() || "Untitled costing";
 }
 
+function sortedSavedCostings() {
+  return readSavedCostings().slice().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+}
+
+function setSavedCostingMenuOpen(isOpen) {
+  const picker = $("#savedCostingPicker");
+  const toggle = $("#savedCostingToggle");
+  const menu = $("#savedCostingMenu");
+  if (!picker || !toggle || !menu) return;
+
+  picker.classList.toggle("is-open", isOpen);
+  toggle.setAttribute("aria-expanded", String(isOpen));
+  menu.hidden = !isOpen;
+
+  if (isOpen) renderSavedCostingMenu();
+}
+
+function renderSavedCostingMenu() {
+  const menu = $("#savedCostingMenu");
+  if (!menu) return;
+
+  const costings = sortedSavedCostings();
+  menu.innerHTML = "";
+
+  if (!costings.length) {
+    const empty = document.createElement("button");
+    empty.type = "button";
+    empty.className = "saved-costing-option is-empty";
+    empty.textContent = "No saved costings";
+    empty.disabled = true;
+    menu.appendChild(empty);
+    return;
+  }
+
+  costings.forEach((costing) => {
+    const option = document.createElement("button");
+    const isCurrent = costing.id === currentCostingId;
+    option.type = "button";
+    option.className = `saved-costing-option${isCurrent ? " is-current" : ""}`;
+    option.textContent = costing.title || "Untitled costing";
+    option.dataset.costingId = costing.id;
+    option.setAttribute("role", "option");
+    option.setAttribute("aria-selected", String(isCurrent));
+    menu.appendChild(option);
+  });
+}
+
+function syncSavedCostingPicker() {
+  const current = $("#savedCostingCurrent");
+  const select = $("#savedCostings");
+  if (current) current.textContent = getCurrentCostingTitle();
+  if (select) select.value = currentCostingId || "";
+  if ($("#savedCostingPicker")?.classList.contains("is-open")) {
+    renderSavedCostingMenu();
+  }
+}
+
 function updateCurrentCostingLabel() {
   const select = $("#savedCostings");
   const title = getCurrentCostingTitle();
 
   document.title = `${title} - Inkson Garment Cost Calculator`;
 
-  if (!select) return;
+  if (!select) {
+    syncSavedCostingPicker();
+    return;
+  }
+
   const newOption = select.querySelector('option[value=""]');
   if (newOption) newOption.textContent = NEW_COSTING_LABEL;
 
-  if (!currentCostingId) return;
+  if (!currentCostingId) {
+    syncSavedCostingPicker();
+    return;
+  }
 
   const currentOption = select.querySelector(`option[value="${CSS.escape(currentCostingId)}"]`);
   if (currentOption) {
     currentOption.textContent = title;
   }
+  syncSavedCostingPicker();
 }
 
 function updateDisplay() {
@@ -621,11 +686,9 @@ function writeSavedCostings(costings) {
 
 function renderSavedCostings() {
   const select = $("#savedCostings");
-  const costings = readSavedCostings();
+  const costings = sortedSavedCostings();
   select.innerHTML = `<option value="">${NEW_COSTING_LABEL}</option>`;
   costings
-    .slice()
-    .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))
     .forEach((costing) => {
       const option = document.createElement("option");
       option.value = costing.id;
@@ -634,6 +697,20 @@ function renderSavedCostings() {
       select.appendChild(option);
     });
   updateCurrentCostingLabel();
+}
+
+function handleSavedCostingSelection(id) {
+  if (!id) {
+    resetForm();
+    showToast("New costing ready");
+    return;
+  }
+
+  const costing = readSavedCostings().find((item) => item.id === id);
+  if (costing) {
+    applyFormState(costing);
+    showToast("Costing loaded");
+  }
 }
 
 function saveCurrentCosting() {
@@ -832,19 +909,30 @@ function bindEvents() {
     saveTheme(nextTheme);
   });
 
-  $("#savedCostings").addEventListener("change", (event) => {
-    const id = event.target.value;
-    if (!id) {
-      resetForm();
-      showToast("New costing ready");
-      return;
-    }
+  $("#savedCostingToggle").addEventListener("click", () => {
+    const picker = $("#savedCostingPicker");
+    setSavedCostingMenuOpen(!picker.classList.contains("is-open"));
+  });
 
-    const costing = readSavedCostings().find((item) => item.id === id);
-    if (costing) {
-      applyFormState(costing);
-      showToast("Costing loaded");
+  $("#savedCostingMenu").addEventListener("click", (event) => {
+    const option = event.target.closest(".saved-costing-option");
+    if (!option || option.disabled) return;
+    setSavedCostingMenuOpen(false);
+    handleSavedCostingSelection(option.dataset.costingId || "");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest("#savedCostingPicker")) {
+      setSavedCostingMenuOpen(false);
     }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setSavedCostingMenuOpen(false);
+  });
+
+  $("#savedCostings").addEventListener("change", (event) => {
+    handleSavedCostingSelection(event.target.value);
   });
 }
 
