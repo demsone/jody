@@ -66,8 +66,14 @@
 
         <section class="step-panel is-active" data-step-title="Garment Basics">
           <header class="step-header">
-            <p>Step 1 of 8</p>
-            <h1>Garment Basics</h1>
+            <div class="step-heading-copy">
+              <p>Step 1 of 8</p>
+              <h1>Garment Basics</h1>
+              <strong class="step-live-total" id="garmentBasicsTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="form-grid">
             <div class="field">
@@ -121,8 +127,14 @@
 
         <section class="step-panel" data-step-title="Materials Only">
           <header class="step-header">
-            <p>Step 2 of 8</p>
-            <h1>Materials Only</h1>
+            <div class="step-heading-copy">
+              <p>Step 2 of 8</p>
+              <h1>Materials Only</h1>
+              <strong class="step-live-total" id="materialsTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="materials-wrap">
             <table class="cost-table" id="materialsTable">
@@ -148,8 +160,14 @@
 
         <section class="step-panel" data-step-title="Labour">
           <header class="step-header">
-            <p>Step 3 of 8</p>
-            <h1>Labour</h1>
+            <div class="step-heading-copy">
+              <p>Step 3 of 8</p>
+              <h1>Labour</h1>
+              <strong class="step-live-total" id="labourTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="tabs" role="group" aria-label="Labour mode">
             <button type="button" id="simpleLabourButton" class="active">Simple</button>
@@ -203,8 +221,14 @@
 
         <section class="step-panel" data-step-title="Development costs">
           <header class="step-header">
-            <p>Step 4 of 8</p>
-            <h1>Development costs</h1>
+            <div class="step-heading-copy">
+              <p>Step 4 of 8</p>
+              <h1>Development costs</h1>
+              <strong class="step-live-total" id="developmentPerUnit">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="form-grid" id="developmentFields"></div>
           <div class="wizard-actions">
@@ -215,8 +239,14 @@
 
         <section class="step-panel" data-step-title="Overheads">
           <header class="step-header">
-            <p>Step 5 of 8</p>
-            <h1>Overheads</h1>
+            <div class="step-heading-copy">
+              <p>Step 5 of 8</p>
+              <h1>Overheads</h1>
+              <strong class="step-live-total" id="overheadPerUnit">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="form-grid" id="overheadFields"></div>
           <div class="wizard-actions">
@@ -227,8 +257,14 @@
 
         <section class="step-panel" data-step-title="Selling costs">
           <header class="step-header">
-            <p>Step 6 of 8</p>
-            <h1>Selling costs</h1>
+            <div class="step-heading-copy">
+              <p>Step 6 of 8</p>
+              <h1>Selling costs</h1>
+              <strong class="step-live-total" id="sellingTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="form-grid">
             <div class="field">
@@ -269,8 +305,14 @@
 
         <section class="step-panel" data-step-title="Market comparison">
           <header class="step-header">
-            <p>Step 7 of 8</p>
-            <h1>Market comparison</h1>
+            <div class="step-heading-copy">
+              <p>Step 7 of 8</p>
+              <h1>Market comparison</h1>
+              <strong class="step-live-total" id="marketAverageTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <div class="competitor-table" id="competitorFields"></div>
           <div class="wizard-actions">
@@ -281,8 +323,14 @@
 
         <section class="step-panel commercial-step" data-step-title="Commercial Output">
           <header class="step-header">
-            <p>Final Screen</p>
-            <h1>Commercial Output</h1>
+            <div class="step-heading-copy">
+              <p>Final Screen</p>
+              <h1>Commercial Output</h1>
+              <strong class="step-live-total" id="commercialUnitTotal">$0.00 / unit</strong>
+            </div>
+            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+              <img src="assets/icons/refresh.svg" alt="" />
+            </button>
           </header>
           <section class="pricing-summary summary-state-neutral" id="pricingSummaryCard">
             <h2>Recommended DTC Retail Price</h2>

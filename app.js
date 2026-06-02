@@ -1,7 +1,7 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
-const APP_BUILD = "v2.01";
+const APP_BUILD = "v2.02";
 const NEW_COSTING_LABEL = "Add new Costing";
 
 const defaultMaterials = [
@@ -505,11 +505,14 @@ function updateDisplay() {
   const statusIcon = getStatusIcon(state);
   const statusText = calculations.warning || calculations.wholesaleStatus;
 
-  setText("materialsTotal", formatMoney(calculations.materials));
+  setText("garmentBasicsTotal", `${formatMoney(calculations.unitCost)} / unit`);
+  setText("materialsTotal", `${formatMoney(calculations.materials)} / unit`);
   setText("developmentPerUnit", `${formatMoney(calculations.development.perUnit)} / unit`);
-  setText("labourTotal", formatMoney(calculations.labour.total));
+  setText("labourTotal", `${formatMoney(calculations.labour.total)} / unit`);
   setText("overheadPerUnit", `${formatMoney(calculations.overhead.perUnit)} / unit`);
-  setText("sellingTotal", formatMoney(calculations.sellingTotal));
+  setText("sellingTotal", `${formatMoney(calculations.sellingTotal)} / unit`);
+  setText("marketAverageTotal", `${formatMoney(competitor.average)} / unit`);
+  setText("commercialUnitTotal", `${formatMoney(calculations.unitCost)} / unit`);
 
   setText("outMaterials", formatMoney(calculations.materials));
   setText("outDevelopment", formatMoney(calculations.development.perUnit));
@@ -749,6 +752,16 @@ async function copySummary() {
   }
 }
 
+function confirmRefreshCosting() {
+  const shouldRefresh = window.confirm(
+    "Warning: refreshing will clear all entered data in the current costing. Saved costings will not be deleted. Proceed with care?"
+  );
+
+  if (!shouldRefresh) return;
+  resetForm();
+  showToast("Costing refreshed");
+}
+
 function setLabourMode(mode) {
   labourMode = mode;
   $("#simpleLabourButton").classList.toggle("active", mode === "simple");
@@ -805,6 +818,9 @@ function bindEvents() {
   $("#deleteButton").addEventListener("click", deleteCurrentCosting);
   $("#newButton").addEventListener("click", resetForm);
   $("#backToStartButton").addEventListener("click", () => showStep(0));
+  $$(".step-refresh-button").forEach((button) => {
+    button.addEventListener("click", confirmRefreshCosting);
+  });
   $("#exportJsonButton").addEventListener("click", exportJson);
   $("#copySummaryButton").addEventListener("click", copySummary);
   $("#printButton")?.addEventListener("click", () => window.print());
