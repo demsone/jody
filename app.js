@@ -1,6 +1,8 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
-const APP_BUILD = "v2.00";
+const LAST_COSTING_KEY = "inkson-last-costing-v1";
+const APP_BUILD = "v2.01";
+const NEW_COSTING_LABEL = "Add new Costing";
 
 const defaultMaterials = [
   "Main fabric",
@@ -459,11 +461,41 @@ function setElementClass(element, baseClass, state) {
   element.className = `${baseClass} summary-state-${state}`;
 }
 
+function readLastCostingId() {
+  try {
+    return localStorage.getItem(LAST_COSTING_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function rememberCurrentCosting() {
+  try {
+    localStorage.setItem(LAST_COSTING_KEY, currentCostingId || "");
+  } catch {}
+}
+
+function getCurrentCostingTitle() {
+  if (!currentCostingId) return NEW_COSTING_LABEL;
+  return $("#garmentName").value.trim() || "Untitled costing";
+}
+
 function updateCurrentCostingLabel() {
   const select = $("#savedCostings");
-  if (!select || currentCostingId) return;
-  const option = select.querySelector('option[value=""]');
-  if (option) option.textContent = "Satchwell Skirt";
+  const title = getCurrentCostingTitle();
+
+  document.title = `${title} - Inkson Garment Cost Calculator`;
+
+  if (!select) return;
+  const newOption = select.querySelector('option[value=""]');
+  if (newOption) newOption.textContent = NEW_COSTING_LABEL;
+
+  if (!currentCostingId) return;
+
+  const currentOption = select.querySelector(`option[value="${CSS.escape(currentCostingId)}"]`);
+  if (currentOption) {
+    currentOption.textContent = title;
+  }
 }
 
 function updateDisplay() {
@@ -544,7 +576,8 @@ function getFormState() {
   };
 }
 
-function applyFormState(state) {
+function applyFormState(state, options = {}) {
+  const { remember = true } = options;
   if (!state) return;
   currentCostingId = state.id || null;
   labourMode = state.labourMode || "simple";
@@ -562,8 +595,10 @@ function applyFormState(state) {
   $("#materialsTable tbody").innerHTML = "";
   (state.materials?.length ? state.materials : defaultMaterials.map((name) => ({ name }))).forEach(createMaterialRow);
   setLabourMode(labourMode);
+  renderSavedCostings();
   showStep(0, false);
   updateDisplay();
+  if (remember) rememberCurrentCosting();
 }
 
 function readSavedCostings() {
@@ -582,7 +617,7 @@ function writeSavedCostings(costings) {
 function renderSavedCostings() {
   const select = $("#savedCostings");
   const costings = readSavedCostings();
-  select.innerHTML = '<option value="">Satchwell Skirt</option>';
+  select.innerHTML = `<option value="">${NEW_COSTING_LABEL}</option>`;
   costings
     .slice()
     .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))
@@ -593,6 +628,7 @@ function renderSavedCostings() {
       option.selected = costing.id === currentCostingId;
       select.appendChild(option);
     });
+  updateCurrentCostingLabel();
 }
 
 function saveCurrentCosting() {
@@ -606,6 +642,7 @@ function saveCurrentCosting() {
     costings.push(state);
   }
   writeSavedCostings(costings);
+  rememberCurrentCosting();
   showToast("Costing saved");
 }
 
@@ -618,6 +655,7 @@ function duplicateCurrentCosting() {
   const costings = readSavedCostings();
   costings.push(state);
   writeSavedCostings(costings);
+  rememberCurrentCosting();
   applyFormState(state);
   showToast("Costing duplicated");
 }
@@ -635,7 +673,8 @@ function deleteCurrentCosting() {
   showToast("Costing deleted");
 }
 
-function resetForm() {
+function resetForm(options = {}) {
+  const { focus = false, remember = true } = options;
   currentCostingId = null;
   $("#costingForm").reset();
   $("#garmentName").value = "";
@@ -650,7 +689,8 @@ function resetForm() {
   showStep(0, false);
   renderSavedCostings();
   updateDisplay();
-  requestAnimationFrame(() => $("#garmentName").focus());
+  if (remember) rememberCurrentCosting();
+  if (focus) requestAnimationFrame(() => $("#garmentName").focus());
 }
 
 function exportJson() {
@@ -764,6 +804,7 @@ function bindEvents() {
   $("#duplicateButton").addEventListener("click", duplicateCurrentCosting);
   $("#deleteButton").addEventListener("click", deleteCurrentCosting);
   $("#newButton").addEventListener("click", resetForm);
+  $("#backToStartButton").addEventListener("click", () => showStep(0));
   $("#exportJsonButton").addEventListener("click", exportJson);
   $("#copySummaryButton").addEventListener("click", copySummary);
   $("#printButton")?.addEventListener("click", () => window.print());
@@ -775,6 +816,12 @@ function bindEvents() {
 
   $("#savedCostings").addEventListener("change", (event) => {
     const id = event.target.value;
+    if (!id) {
+      resetForm();
+      showToast("New costing ready");
+      return;
+    }
+
     const costing = readSavedCostings().find((item) => item.id === id);
     if (costing) {
       applyFormState(costing);
@@ -783,11 +830,31 @@ function bindEvents() {
   });
 }
 
+function loadInitialCosting() {
+  const costings = readSavedCostings();
+  const sortedCostings = costings.slice().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+  const lastCostingId = readLastCostingId();
+
+  if (lastCostingId === "") {
+    resetForm({ focus: false, remember: false });
+    return;
+  }
+
+  const costing =
+    sortedCostings.find((item) => item.id === lastCostingId) ||
+    (lastCostingId === null ? sortedCostings[0] : null);
+
+  if (costing) {
+    applyFormState(costing, { remember: false });
+    return;
+  }
+
+  resetForm({ focus: false, remember: false });
+}
+
 createStaticFields();
 loadDefaultMaterials();
 bindEvents();
 setText("buildNumber", APP_BUILD);
 applyTheme(document.documentElement.dataset.theme);
-showStep(0, false);
-renderSavedCostings();
-updateDisplay();
+loadInitialCosting();
