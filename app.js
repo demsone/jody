@@ -5,7 +5,7 @@ const ACCENT_KEY = "gcc-accent-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.08";
+const APP_BUILD = "v2.09";
 const NEW_COSTING_LABEL = "Add new Costing";
 const DEFAULT_ACCENT = "#70a480";
 
@@ -1092,6 +1092,13 @@ function setLabourMode(mode) {
 
 function showAuthPanel(panelName) {
   const nextPanel = panelName || "login";
+  const authShell = $("#authShell");
+  const statusPanel = $("#authStatusPanel");
+  if (authShell) {
+    authShell.dataset.authPanel = nextPanel;
+    delete authShell.dataset.authStatus;
+  }
+  if (statusPanel) statusPanel.hidden = true;
   $$(".auth-panel").forEach((panel) => {
     const isActive = panel.dataset.authPanel === nextPanel;
     panel.classList.toggle("is-active", isActive);
@@ -1104,6 +1111,30 @@ function setAuthMessage(message = "", state = "") {
   if (!messageElement) return;
   messageElement.textContent = message;
   messageElement.className = `auth-message${state ? ` ${state}` : ""}`;
+  messageElement.hidden = !message;
+}
+
+function showAuthStatus(message, state = "loading") {
+  const authShell = $("#authShell");
+  const statusPanel = $("#authStatusPanel");
+  const statusIcon = $("#authStatusIcon");
+  const statusText = $("#authStatusText");
+  const iconName = state === "error" ? "warning" : state === "success" || state === "login-success" ? "tick" : "info";
+
+  if (authShell) {
+    authShell.dataset.authPanel = "status";
+    authShell.dataset.authStatus = state;
+  }
+
+  $$(".auth-panel").forEach((panel) => {
+    panel.classList.remove("is-active");
+    panel.hidden = true;
+  });
+
+  if (statusIcon) statusIcon.src = `assets/icons/${iconName}.svg`;
+  if (statusText) statusText.textContent = message;
+  if (statusPanel) statusPanel.hidden = false;
+  setAuthMessage("");
 }
 
 function authRedirectUrl() {
@@ -1166,17 +1197,19 @@ function handleSignedOut() {
 
 async function handleLogin(event) {
   event.preventDefault();
-  setAuthMessage("Signing in...");
   const email = $("#loginEmail").value.trim();
   const password = $("#loginPassword").value;
+  showAuthStatus("Checking your account...", "loading");
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (error) {
+    showAuthPanel("login");
     setAuthMessage(friendlyAuthError(error), "error");
     return;
   }
 
   if (data?.user) {
+    showAuthStatus("Successfully logged in, please wait while you are being redirected.", "login-success");
     await handleSignedIn(data.user, { force: true });
     showToast("Signed in");
   }
@@ -1192,11 +1225,12 @@ async function handleSignup(event) {
   const confirmPassword = $("#signupConfirmPassword").value;
 
   if (password !== confirmPassword) {
+    showAuthPanel("signup");
     setAuthMessage("Passwords do not match.", "error");
     return;
   }
 
-  setAuthMessage("Creating account...");
+  showAuthStatus("Checking your account...", "loading");
   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
@@ -1211,34 +1245,38 @@ async function handleSignup(event) {
   });
 
   if (error) {
+    showAuthPanel("signup");
     setAuthMessage(friendlyAuthError(error), "error");
     return;
   }
 
   if (data?.session?.user) {
+    showAuthStatus("Account created. You can now sign in.", "success");
     await handleSignedIn(data.session.user, { force: true });
     showToast("Account created");
     return;
   }
 
-  setAuthMessage("Account created. Check your email to confirm your account before signing in.", "success");
-  showAuthPanel("login");
+  showAuthStatus("Account created. You can now sign in.", "success");
+  window.setTimeout(() => showAuthPanel("login"), 1800);
 }
 
 async function handleForgotPassword(event) {
   event.preventDefault();
   const email = $("#resetEmail").value.trim();
-  setAuthMessage("Sending reset link...");
+  showAuthStatus("Sending reset link...", "loading");
   const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
     redirectTo: authRedirectUrl(),
   });
 
   if (error) {
+    showAuthPanel("forgot");
     setAuthMessage(friendlyAuthError(error), "error");
     return;
   }
 
-  setAuthMessage("Password reset link sent. Check your email.", "success");
+  showAuthStatus("Password reset sent. Check your email.", "success");
+  window.setTimeout(() => showAuthPanel("login"), 1800);
 }
 
 async function handleUpdatePassword(event) {
@@ -1247,14 +1285,16 @@ async function handleUpdatePassword(event) {
   const confirmPassword = $("#confirmNewPassword").value;
 
   if (password !== confirmPassword) {
+    showAuthPanel("update-password");
     setAuthMessage("Passwords do not match.", "error");
     return;
   }
 
-  setAuthMessage("Updating password...");
+  showAuthStatus("Updating password...", "loading");
   const { data, error } = await supabaseClient.auth.updateUser({ password });
 
   if (error) {
+    showAuthPanel("update-password");
     setAuthMessage(friendlyAuthError(error), "error");
     return;
   }

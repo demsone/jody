@@ -97,80 +97,204 @@ textarea:focus-visible {
 .auth-shell {
   display: grid;
   min-height: 100vh;
-  padding: 34px 16px;
+  padding: 0 16px;
   place-items: center;
 }
 
 .auth-card {
   display: grid;
-  gap: 34px;
-  width: min(520px, 100%);
-  padding: 44px 42px 38px;
+  gap: 0;
+  align-content: start;
+  width: min(386px, 100%);
+  min-height: 429px;
+  padding: 31px;
   border: 1px solid var(--border-strong);
   border-radius: 8px;
   background: var(--surface);
+  transform: translateY(-6px);
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-card {
+  width: min(680px, 100%);
+  min-height: 530px;
+}
+
+.auth-shell[data-auth-panel="forgot"] .auth-card {
+  min-height: 293px;
+}
+
+.auth-shell[data-auth-panel="update-password"] .auth-card {
+  min-height: 392px;
+}
+
+.auth-shell[data-auth-panel="status"] .auth-card {
+  align-content: start;
+  justify-items: center;
+  width: min(680px, 100%);
+  min-height: 382px;
+  text-align: center;
+}
+
+.auth-shell[data-auth-panel="status"][data-auth-status="login-success"] .auth-card {
+  width: min(386px, 100%);
+  min-height: 333px;
 }
 
 .auth-brand {
   justify-self: start;
+  margin-bottom: 16px;
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-brand {
+  gap: 21px;
+  margin-bottom: 20px;
+  font-size: 34px;
+}
+
+.auth-brand .brand-mark {
+  width: 29px;
+  height: 50px;
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-brand .brand-mark {
+  width: 39px;
+  height: 66px;
 }
 
 .auth-panel {
   display: grid;
-  gap: 24px;
+  gap: 0;
 }
 
 .auth-kicker {
-  margin: 0 0 -12px;
-  color: var(--neutral);
-  font-size: 12px;
-  font-weight: 600;
+  display: none;
 }
 
 .auth-panel h1 {
+  display: none;
   margin: 0;
   color: var(--text);
-  font-size: 36px;
+  font-size: 22px;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 23px;
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-panel h1 {
+  display: block;
+  margin: 0 0 20px;
 }
 
 .auth-form {
   display: grid;
-  gap: 24px;
+  gap: 0;
 }
 
 .auth-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  gap: 10px 16px;
+}
+
+.auth-shell[data-auth-panel="login"] .auth-panel .field,
+.auth-shell[data-auth-panel="forgot"] .auth-panel .field {
+  width: 297px;
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-grid {
+  width: 616px;
+  max-width: 100%;
+  grid-template-columns: repeat(2, 297px);
+  justify-content: space-between;
+}
+
+.auth-panel .field {
+  min-height: 75px;
+}
+
+.auth-panel label {
+  font-size: 16px;
+  line-height: 19px;
+}
+
+.auth-panel input {
+  min-height: 30px;
+  padding-bottom: 11px;
+}
+
+.mobile-label {
+  display: none;
+}
+
+.auth-primary-button,
+.auth-secondary-button,
+.auth-links button {
+  min-height: 44px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.auth-primary-button,
+.auth-secondary-button {
+  width: 100%;
 }
 
 .auth-primary-button {
-  width: fit-content;
-  min-width: 142px;
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.auth-secondary-button {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.auth-shell[data-auth-panel="login"] .auth-primary-button,
+.auth-shell[data-auth-panel="forgot"] .auth-primary-button {
+  margin-top: 36px;
+}
+
+.auth-shell[data-auth-panel="signup"] .auth-primary-button {
+  margin-top: 0;
+}
+
+.auth-shell[data-auth-panel="login"] .auth-panel .field + .field {
+  margin-top: 6px;
+}
+
+.auth-action-row {
+  display: grid;
+  align-items: start;
+  grid-template-columns: repeat(2, 302px);
+  gap: 12px;
+  width: 616px;
+  max-width: 100%;
+  min-height: 72px;
+  margin-top: 20px;
+  padding-top: 20px;
 }
 
 .auth-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .auth-links button {
-  min-height: 36px;
   border-color: var(--blue);
   color: var(--blue);
-  font-size: 13px;
-  font-weight: 400;
-  padding: 0 18px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.auth-shell[data-auth-panel="forgot"] .auth-links {
+  display: none;
 }
 
 .auth-message {
   min-height: 22px;
-  margin: 0;
+  margin: 14px 0 0;
   color: var(--muted);
   font-size: 14px;
   font-weight: 300;
@@ -182,6 +306,82 @@ textarea:focus-visible {
 }
 
 .auth-message.error {
+  color: var(--bad);
+}
+
+.auth-status-panel {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 20px;
+  width: 616px;
+  max-width: 100%;
+  min-height: 190px;
+  color: var(--neutral);
+}
+
+.auth-status-panel img {
+  width: 48px;
+  height: 48px;
+}
+
+.auth-status-panel p {
+  max-width: 472px;
+  margin: 0;
+  color: var(--neutral);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.auth-shell[data-auth-panel="status"] .auth-brand {
+  justify-self: center;
+  gap: 21px;
+  margin-bottom: 20px;
+  font-size: 30px;
+}
+
+.auth-shell[data-auth-panel="status"] .auth-brand .brand-mark {
+  width: 39px;
+  height: 66px;
+}
+
+.auth-shell[data-auth-status="login-success"] .auth-brand {
+  justify-self: start;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 25px;
+}
+
+.auth-shell[data-auth-status="login-success"] .auth-brand .brand-mark {
+  width: 29px;
+  height: 50px;
+}
+
+.auth-shell[data-auth-status="login-success"] .auth-status-panel {
+  justify-items: start;
+  width: 322px;
+  min-height: 113px;
+  text-align: left;
+}
+
+.auth-shell[data-auth-status="login-success"] .auth-status-panel img {
+  display: none;
+}
+
+.auth-shell[data-auth-status="login-success"] .auth-status-panel p {
+  max-width: 317px;
+  color: var(--neutral);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.auth-shell[data-auth-status="success"] .auth-status-panel p,
+.auth-shell[data-auth-status="login-success"] .auth-status-panel p {
+  color: var(--accent);
+}
+
+.auth-shell[data-auth-status="error"] .auth-status-panel p {
   color: var(--bad);
 }
 
@@ -210,6 +410,10 @@ textarea:focus-visible {
   font-weight: 700;
   line-height: 0.96;
   letter-spacing: 0;
+}
+
+.brand-lockup span:not(.brand-mark) {
+  white-space: nowrap;
 }
 
 .brand-mark {
@@ -1320,31 +1524,160 @@ input[type="number"] {
 
 @media (max-width: 700px) {
   .auth-shell {
-    align-items: start;
-    padding: 17px 14px;
+    padding: 0 14px;
   }
 
   .auth-card {
-    gap: 28px;
-    width: 100%;
-    padding: 30px 20px 28px;
+    width: min(310px, 100%);
+    min-height: 486px;
+    padding: 31px;
   }
 
-  .auth-brand {
-    justify-self: center;
+  .auth-shell[data-auth-panel="signup"] .auth-card {
+    width: min(312px, 100%);
+    min-height: 677px;
   }
 
-  .auth-panel h1 {
-    font-size: 30px;
+  .auth-shell[data-auth-panel="forgot"] .auth-card {
+    width: min(310px, 100%);
+    min-height: 293px;
+  }
+
+  .auth-shell[data-auth-panel="update-password"] .auth-card {
+    width: min(310px, 100%);
+    min-height: 410px;
+  }
+
+  .auth-shell[data-auth-panel="status"] .auth-card {
+    width: min(320px, 100%);
+    min-height: 342px;
+  }
+
+  .auth-shell[data-auth-panel="status"][data-auth-status="login-success"] .auth-card {
+    width: min(310px, 100%);
+    min-height: 237px;
+  }
+
+  .auth-shell[data-auth-panel="status"] .auth-status-panel {
+    width: 256px;
+  }
+
+  .auth-shell[data-auth-panel="status"] .auth-brand {
+    gap: 16px;
+    font-size: 28px;
+  }
+
+  .auth-shell[data-auth-status="login-success"] .auth-brand {
+    gap: 16px;
+    font-size: 25px;
+  }
+
+  .auth-shell[data-auth-status="login-success"] .auth-brand .brand-mark {
+    width: 29px;
+    height: 50px;
+  }
+
+  .auth-shell[data-auth-status="login-success"] .auth-status-panel {
+    width: 248px;
+    min-height: 42px;
+  }
+
+  .auth-shell[data-auth-status="login-success"] .auth-status-panel p {
+    max-width: 248px;
+    font-size: 16px;
+    line-height: 21px;
+  }
+
+  .auth-shell[data-auth-panel="signup"] .auth-panel h1 {
+    margin-bottom: 32px;
+    font-size: 22px;
+    line-height: 23px;
+  }
+
+  .auth-shell .auth-brand {
+    order: 0;
+    justify-self: start;
+    gap: 16px;
+    margin-top: 0;
+    font-size: 25px;
+  }
+
+  .auth-shell .auth-brand .brand-mark {
+    width: 29px;
+    height: 50px;
+  }
+
+  .auth-shell[data-auth-panel="signup"] .auth-brand {
+    gap: 18px;
+    margin-bottom: 34px;
+    font-size: 28px;
+  }
+
+  .auth-shell[data-auth-panel="signup"] .auth-brand .brand-mark {
+    width: 29px;
+    height: 50px;
+  }
+
+  .desktop-label {
+    display: none;
+  }
+
+  .mobile-label {
+    display: inline;
   }
 
   .auth-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .auth-shell[data-auth-panel="signup"] .auth-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .signup-first-name-field,
+  .signup-last-name-field {
+    display: none;
+  }
+
+  .auth-shell[data-auth-panel="login"] .auth-panel .field,
+  .auth-shell[data-auth-panel="forgot"] .auth-panel .field,
+  .auth-shell[data-auth-panel="signup"] .auth-panel .field {
+    width: 100%;
+  }
+
+  .auth-action-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+    min-height: 0;
+    margin-top: 20px;
+    padding-top: 0;
+  }
+
+  .auth-shell[data-auth-panel="signup"] .auth-action-row {
+    min-height: 108px;
+    margin-top: 32px;
   }
 
   .auth-links {
     display: grid;
+    justify-items: center;
+  }
+
+  .auth-shell[data-auth-panel="login"] .auth-links button,
+  .auth-shell[data-auth-panel="login"] .auth-primary-button {
+    width: 214px;
+  }
+
+  .auth-shell[data-auth-panel="forgot"] .auth-primary-button {
+    width: 100%;
+  }
+
+  .auth-shell[data-auth-panel="forgot"] .auth-links button {
+    width: 214px;
   }
 
   .app-shell {

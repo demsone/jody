@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <section class="auth-shell" id="authShell" aria-label="Account access">
+    <section class="auth-shell" id="authShell" data-auth-panel="login" aria-label="Account access">
       <div class="auth-card">
         <div class="brand-lockup auth-brand" aria-label="Garment Cost Calculator">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -26,13 +26,13 @@
           <form id="loginForm" class="auth-form">
             <div class="field">
               <label for="loginEmail">Email</label>
-              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" required />
+              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
             </div>
             <div class="field">
               <label for="loginPassword">Password</label>
-              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" required />
+              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" placeholder="In^5Rrkj" required />
             </div>
-            <button type="submit" class="auth-primary-button">Sign in</button>
+            <button type="submit" class="auth-primary-button">Login</button>
           </form>
           <div class="auth-links">
             <button type="button" data-auth-view="signup">Create account</button>
@@ -43,40 +43,38 @@
         <div class="auth-panel" data-auth-panel="signup" hidden>
           <p class="auth-kicker">Public sign up</p>
           <h1>Create account</h1>
-          <form id="signupForm" class="auth-form">
+          <form id="signupForm" class="auth-form auth-signup-form">
             <div class="auth-grid">
-              <div class="field">
+              <div class="field signup-first-name-field">
                 <label for="signupFirstName">First name</label>
-                <input id="signupFirstName" name="signupFirstName" type="text" autocomplete="given-name" required />
+                <input id="signupFirstName" name="signupFirstName" type="text" autocomplete="given-name" placeholder="Jody" />
+              </div>
+              <div class="field signup-last-name-field">
+                <label for="signupLastName">Last name</label>
+                <input id="signupLastName" name="signupLastName" type="text" autocomplete="family-name" placeholder="Kahlon" />
+              </div>
+              <div class="field signup-business-field">
+                <label for="signupBusinessName"><span class="desktop-label">Business name</span><span class="mobile-label">Display name</span></label>
+                <input id="signupBusinessName" name="signupBusinessName" type="text" autocomplete="organization" placeholder="Jody Kahlon" />
               </div>
               <div class="field">
-                <label for="signupLastName">Last name</label>
-                <input id="signupLastName" name="signupLastName" type="text" autocomplete="family-name" />
+                <label for="signupEmail">Email</label>
+                <input id="signupEmail" name="signupEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
               </div>
-            </div>
-            <div class="field">
-              <label for="signupBusinessName">Business name</label>
-              <input id="signupBusinessName" name="signupBusinessName" type="text" autocomplete="organization" />
-            </div>
-            <div class="field">
-              <label for="signupEmail">Email</label>
-              <input id="signupEmail" name="signupEmail" type="email" autocomplete="email" required />
-            </div>
-            <div class="auth-grid">
               <div class="field">
                 <label for="signupPassword">Password</label>
-                <input id="signupPassword" name="signupPassword" type="password" autocomplete="new-password" minlength="8" required />
+                <input id="signupPassword" name="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="In^5Rrkj" required />
               </div>
               <div class="field">
                 <label for="signupConfirmPassword">Confirm password</label>
-                <input id="signupConfirmPassword" name="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+                <input id="signupConfirmPassword" name="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="In^5Rrkj" required />
               </div>
             </div>
-            <button type="submit" class="auth-primary-button">Create account</button>
+            <div class="auth-action-row">
+              <button type="submit" class="auth-primary-button">Create Account</button>
+              <button type="button" class="auth-secondary-button" data-auth-view="login">Already have an account?</button>
+            </div>
           </form>
-          <div class="auth-links">
-            <button type="button" data-auth-view="login">Already have an account?</button>
-          </div>
         </div>
 
         <div class="auth-panel" data-auth-panel="forgot" hidden>
@@ -85,9 +83,9 @@
           <form id="forgotPasswordForm" class="auth-form">
             <div class="field">
               <label for="resetEmail">Email</label>
-              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" required />
+              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
             </div>
-            <button type="submit" class="auth-primary-button">Send reset link</button>
+            <button type="submit" class="auth-primary-button">Password Reset</button>
           </form>
           <div class="auth-links">
             <button type="button" data-auth-view="login">Back to sign in</button>
@@ -110,7 +108,12 @@
           </form>
         </div>
 
-        <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+        <div class="auth-status-panel" id="authStatusPanel" hidden>
+          <img id="authStatusIcon" src="assets/icons/info.svg" alt="" />
+          <p id="authStatusText">Checking your account...</p>
+        </div>
+
+        <p class="auth-message" id="authMessage" role="status" aria-live="polite" hidden></p>
       </div>
     </section>
 
