@@ -133,7 +133,7 @@ textarea:focus-visible {
 .app-header-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 32px;
   color: var(--text);
   font-size: 15px;
   font-weight: 300;

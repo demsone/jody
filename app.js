@@ -2,7 +2,7 @@ const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
 const ACCENT_KEY = "gcc-accent-v1";
-const APP_BUILD = "v2.06";
+const APP_BUILD = "v2.07";
 const NEW_COSTING_LABEL = "Add new Costing";
 const DEFAULT_ACCENT = "#70a480";
 
