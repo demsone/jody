@@ -1,8 +1,10 @@
 const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
-const APP_BUILD = "v2.04";
+const ACCENT_KEY = "gcc-accent-v1";
+const APP_BUILD = "v2.05";
 const NEW_COSTING_LABEL = "Add new Costing";
+const DEFAULT_ACCENT = "#70a480";
 
 const defaultMaterials = [
   "Main fabric",
@@ -61,6 +63,7 @@ let labourMode = "simple";
 let currentCostingId = null;
 let currentStep = 0;
 let calculations = {};
+let selectedAccent = DEFAULT_ACCENT;
 
 const money = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -89,6 +92,17 @@ function percentValue(id) {
 function setText(id, value) {
   const element = $(`#${id}`);
   if (element) element.textContent = value;
+}
+
+function setStepTotal(id, value) {
+  const element = $(`#${id}`);
+  if (!element) return;
+  const valueElement = $(".step-total-value", element);
+  if (valueElement) {
+    valueElement.textContent = value;
+  } else {
+    element.textContent = value;
+  }
 }
 
 function formatMoney(value) {
@@ -131,6 +145,68 @@ function saveTheme(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
   } catch {}
+}
+
+function readAccent() {
+  try {
+    return localStorage.getItem(ACCENT_KEY) || DEFAULT_ACCENT;
+  } catch {
+    return DEFAULT_ACCENT;
+  }
+}
+
+function saveAccent(accent) {
+  try {
+    localStorage.setItem(ACCENT_KEY, accent);
+  } catch {}
+}
+
+function applyAccent(accent) {
+  selectedAccent = accent || DEFAULT_ACCENT;
+  document.documentElement.style.setProperty("--accent", selectedAccent);
+  $$(".accent-swatch").forEach((button) => {
+    const isActive = button.dataset.accent?.toLowerCase() === selectedAccent.toLowerCase();
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function updateGreeting() {
+  const hour = new Date().getHours();
+  const period = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
+  setText("greetingText", `Good ${period}, Jody!`);
+}
+
+function openModal(id) {
+  const modal = $(`#${id}`);
+  if (!modal) return;
+  modal.hidden = false;
+  document.body.classList.add("modal-open");
+  const closeButton = $("[data-close-modal]", modal);
+  if (closeButton) requestAnimationFrame(() => closeButton.focus());
+}
+
+function closeModal(modal) {
+  if (!modal) return;
+  modal.hidden = true;
+  if (!$(".modal-backdrop:not([hidden])")) {
+    document.body.classList.remove("modal-open");
+  }
+}
+
+function closeOpenModals() {
+  $$(".modal-backdrop").forEach(closeModal);
+}
+
+function switchSettingsTab(tabName) {
+  const nextTab = tabName === "account" ? "account" : "appearance";
+  $$(".settings-tab").forEach((button) => {
+    const isActive = button.dataset.settingsTab === nextTab;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  $("#accountSettingsPanel").hidden = nextTab !== "account";
+  $("#appearanceSettingsPanel").hidden = nextTab !== "appearance";
 }
 
 function wizardPanels() {
@@ -573,13 +649,13 @@ function updateDisplay() {
   const statusIcon = getStatusIcon(state);
   const statusText = calculations.warning || calculations.wholesaleStatus;
 
-  setText("garmentBasicsTotal", `${formatMoney(calculations.unitCost)} / unit`);
-  setText("materialsTotal", `${formatMoney(calculations.materials)} / unit`);
-  setText("developmentPerUnit", `${formatMoney(calculations.development.perUnit)} / unit`);
-  setText("labourTotal", `${formatMoney(calculations.labour.total)} / unit`);
-  setText("overheadPerUnit", `${formatMoney(calculations.overhead.perUnit)} / unit`);
-  setText("sellingTotal", `${formatMoney(calculations.sellingTotal)} / unit`);
-  setText("marketAverageTotal", `${formatMoney(competitor.average)} / unit`);
+  setStepTotal("garmentBasicsTotal", `${formatMoney(calculations.unitCost)} / unit`);
+  setStepTotal("materialsTotal", `${formatMoney(calculations.materials)} / unit`);
+  setStepTotal("developmentPerUnit", `${formatMoney(calculations.development.perUnit)} / unit`);
+  setStepTotal("labourTotal", `${formatMoney(calculations.labour.total)} / unit`);
+  setStepTotal("overheadPerUnit", `${formatMoney(calculations.overhead.perUnit)} / unit`);
+  setStepTotal("sellingTotal", `${formatMoney(calculations.sellingTotal)} / unit`);
+  setStepTotal("marketAverageTotal", `${formatMoney(competitor.average)} / unit`);
 
   setText("outMaterials", formatMoney(calculations.materials));
   setText("outDevelopment", formatMoney(calculations.development.perUnit));
@@ -909,6 +985,31 @@ function bindEvents() {
     saveTheme(nextTheme);
   });
 
+  $("#settingsButton")?.addEventListener("click", () => openModal("settingsModal"));
+  $("#aboutButton")?.addEventListener("click", () => openModal("aboutModal"));
+  $$("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", () => closeModal(button.closest(".modal-backdrop")));
+  });
+  $$(".modal-backdrop").forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal(modal);
+    });
+  });
+  $$(".settings-tab").forEach((button) => {
+    button.addEventListener("click", () => switchSettingsTab(button.dataset.settingsTab));
+  });
+  $$(".accent-swatch").forEach((button) => {
+    button.addEventListener("click", () => applyAccent(button.dataset.accent));
+  });
+  $("#settingsSaveButton")?.addEventListener("click", () => {
+    saveAccent(selectedAccent);
+    closeOpenModals();
+    showToast("Settings saved");
+  });
+  $("#manageLogoButton")?.addEventListener("click", () => {
+    showToast("Logo management will be available with user accounts");
+  });
+
   $("#savedCostingToggle").addEventListener("click", () => {
     const picker = $("#savedCostingPicker");
     setSavedCostingMenuOpen(!picker.classList.contains("is-open"));
@@ -928,7 +1029,10 @@ function bindEvents() {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setSavedCostingMenuOpen(false);
+    if (event.key === "Escape") {
+      setSavedCostingMenuOpen(false);
+      closeOpenModals();
+    }
   });
 
   $("#savedCostings").addEventListener("change", (event) => {
@@ -962,5 +1066,7 @@ createStaticFields();
 loadDefaultMaterials();
 bindEvents();
 setText("buildNumber", APP_BUILD);
+updateGreeting();
+applyAccent(readAccent());
 applyTheme(document.documentElement.dataset.theme);
 loadInitialCosting();

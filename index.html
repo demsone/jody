@@ -14,7 +14,49 @@
   </head>
   <body>
     <main class="app-shell">
+      <header class="app-header" aria-label="Application header">
+        <div class="brand-lockup" aria-label="Garment Cost Calculator">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Garment<br />Cost Calculator</span>
+        </div>
+        <div class="app-header-actions">
+          <span id="greetingText">Good Afternoon, Jody!</span>
+          <button type="button" id="settingsButton" class="header-icon-button" aria-label="Open settings">
+            <img src="assets/icons/painbrush.svg" alt="" />
+          </button>
+          <button type="button" id="aboutButton" class="header-learn-button">Learn About GCC</button>
+        </div>
+      </header>
       <form id="costingForm" class="costing-form" autocomplete="off">
+        <section class="live-summary-panel" id="liveSummary" aria-label="Live pricing summary">
+          <article class="summary-card metric-card">
+            <img src="assets/icons/total-unit-cost.svg" alt="" />
+            <span>Total<br />unit cost</span>
+            <strong id="summaryUnitCost">$0.00</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/gross-margin.svg" alt="" />
+            <span>Gross<br />margin</span>
+            <strong id="summaryMargin">0.0%</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/wholesale.svg" alt="" />
+            <span>Wholesale</span>
+            <strong id="summaryWholesale">$0.00</strong>
+          </article>
+          <article class="summary-card metric-card">
+            <img src="assets/icons/wholesale-profit.svg" alt="" />
+            <span>Wholesale<br />profit</span>
+            <strong id="summaryWholesaleProfit">$0.00</strong>
+          </article>
+          <article class="summary-card retail-card summary-state-neutral" id="summaryRetailCard">
+            <span>Recommended retail</span>
+            <strong id="summaryRetail">$0.00</strong>
+            <img id="summaryStatusIcon" src="assets/icons/info.svg" alt="" />
+            <small id="summaryStatus">Needs inputs</small>
+          </article>
+        </section>
+
         <section class="toolbar" aria-label="Costing actions">
           <div class="saved-costing" id="savedCostingPicker">
             <select id="savedCostings" class="native-saved-costings" aria-label="Saved costings"></select>
@@ -46,45 +88,22 @@
           </div>
         </section>
 
-        <section class="live-summary-panel" id="liveSummary" aria-label="Live pricing summary">
-          <article class="summary-card metric-card">
-            <img src="assets/icons/total-unit-cost.svg" alt="" />
-            <span>Total<br />unit cost</span>
-            <strong id="summaryUnitCost">$0.00</strong>
-          </article>
-          <article class="summary-card metric-card">
-            <img src="assets/icons/gross-margin.svg" alt="" />
-            <span>Gross<br />margin</span>
-            <strong id="summaryMargin">0.0%</strong>
-          </article>
-          <article class="summary-card metric-card">
-            <img src="assets/icons/wholesale.svg" alt="" />
-            <span>Wholesale</span>
-            <strong id="summaryWholesale">$0.00</strong>
-          </article>
-          <article class="summary-card metric-card">
-            <img src="assets/icons/wholesale-profit.svg" alt="" />
-            <span>Wholesale<br />profit</span>
-            <strong id="summaryWholesaleProfit">$0.00</strong>
-          </article>
-          <article class="summary-card retail-card summary-state-neutral" id="summaryRetailCard">
-            <span>Recommended retail</span>
-            <strong id="summaryRetail">$0.00</strong>
-            <img id="summaryStatusIcon" src="assets/icons/info.svg" alt="" />
-            <small id="summaryStatus">Needs inputs</small>
-          </article>
-        </section>
-
         <section class="step-panel is-active" data-step-title="Garment Basics">
           <header class="step-header">
             <div class="step-heading-copy">
               <p>Step 1 of 8</p>
               <h1>Garment Basics</h1>
-              <strong class="step-live-total" id="garmentBasicsTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="garmentBasicsTotal">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="form-grid">
             <div class="field">
@@ -141,11 +160,17 @@
             <div class="step-heading-copy">
               <p>Step 2 of 8</p>
               <h1>Materials Only</h1>
-              <strong class="step-live-total" id="materialsTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="materialsTotal">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="materials-wrap">
             <table class="cost-table" id="materialsTable">
@@ -176,11 +201,17 @@
             <div class="step-heading-copy">
               <p>Step 3 of 8</p>
               <h1>Labour</h1>
-              <strong class="step-live-total" id="labourTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="labourTotal">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="tabs" role="group" aria-label="Labour mode">
             <button type="button" id="simpleLabourButton" class="active">Simple</button>
@@ -237,11 +268,17 @@
             <div class="step-heading-copy">
               <p>Step 4 of 8</p>
               <h1>Development costs</h1>
-              <strong class="step-live-total" id="developmentPerUnit">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="developmentPerUnit">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="form-grid" id="developmentFields"></div>
           <div class="wizard-actions">
@@ -255,11 +292,17 @@
             <div class="step-heading-copy">
               <p>Step 5 of 8</p>
               <h1>Overheads</h1>
-              <strong class="step-live-total" id="overheadPerUnit">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="overheadPerUnit">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="form-grid" id="overheadFields"></div>
           <div class="wizard-actions">
@@ -273,11 +316,17 @@
             <div class="step-heading-copy">
               <p>Step 6 of 8</p>
               <h1>Selling costs</h1>
-              <strong class="step-live-total" id="sellingTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="sellingTotal">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="form-grid">
             <div class="field">
@@ -321,11 +370,17 @@
             <div class="step-heading-copy">
               <p>Step 7 of 8</p>
               <h1>Market comparison</h1>
-              <strong class="step-live-total" id="marketAverageTotal">$0.00 / unit</strong>
             </div>
-            <button type="button" class="step-refresh-button" aria-label="Refresh costing">
-              <img src="assets/icons/refresh.svg" alt="" />
-            </button>
+            <div class="step-total-actions">
+              <strong class="step-live-total" id="marketAverageTotal">
+                <span class="step-total-icon" aria-hidden="true"></span>
+                <span class="step-total-label">Added to unit cost</span>
+                <span class="step-total-value">$0.00 / unit</span>
+              </strong>
+              <button type="button" class="step-refresh-button" aria-label="Refresh costing">
+                <img src="assets/icons/refresh.svg" alt="" />
+              </button>
+            </div>
           </header>
           <div class="competitor-table" id="competitorFields"></div>
           <div class="wizard-actions">
@@ -396,6 +451,69 @@
         </section>
       </form>
     </main>
+
+    <div class="modal-backdrop" id="settingsModal" hidden>
+      <section class="settings-modal" role="dialog" aria-modal="true" aria-label="User settings">
+        <button type="button" class="modal-close-button" data-close-modal aria-label="Close settings">×</button>
+        <nav class="settings-tabs" aria-label="Settings sections">
+          <button type="button" class="settings-tab" data-settings-tab="account" aria-selected="false">
+            <span class="settings-tab-icon user-tab-icon" aria-hidden="true"></span>
+            Account
+          </button>
+          <button type="button" class="settings-tab active" data-settings-tab="appearance" aria-selected="true">
+            <span class="settings-tab-icon appearance-tab-icon" aria-hidden="true"></span>
+            Appearance
+          </button>
+        </nav>
+        <div class="settings-content">
+          <section class="settings-panel" id="accountSettingsPanel" hidden>
+            <h2>Account</h2>
+            <p class="settings-muted">Account profiles will be connected in the Vercel closed beta build.</p>
+            <dl class="account-details">
+              <div>
+                <dt>User</dt>
+                <dd>Jody</dd>
+              </div>
+              <div>
+                <dt>Build</dt>
+                <dd id="buildNumber">v2.05</dd>
+              </div>
+            </dl>
+          </section>
+          <section class="settings-panel active" id="appearanceSettingsPanel">
+            <h2>Choose Accent</h2>
+            <div class="accent-swatches" id="accentSwatches" aria-label="Choose accent colour">
+              <button type="button" class="accent-swatch" data-accent="#ef4b9a" style="--swatch: #ef4b9a" aria-label="Pink accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#82b0df" style="--swatch: #82b0df" aria-label="Blue accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#c4533a" style="--swatch: #c4533a" aria-label="Red accent"></button>
+              <button type="button" class="accent-swatch active" data-accent="#70a480" style="--swatch: #70a480" aria-label="Green accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#a8b0ae" style="--swatch: #a8b0ae" aria-label="Grey accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#1d1d1e" style="--swatch: #1d1d1e" aria-label="Black accent"></button>
+            </div>
+            <h2>Choose Company Logo</h2>
+            <div class="company-logo-row">
+              <span class="company-logo-token">B</span>
+              <button type="button" id="manageLogoButton" class="utility-button">Manage</button>
+            </div>
+            <button type="button" id="settingsSaveButton" class="settings-save-button">Save</button>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="aboutModal" hidden>
+      <section class="about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+        <button type="button" class="modal-close-button" data-close-modal aria-label="Close information">×</button>
+        <div class="brand-lockup modal-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <h2 id="aboutTitle">Garment<br />Cost Calculator</h2>
+        </div>
+        <p>
+          This open version calculates garment unit cost, retail price, margin, wholesale viability, and market position.
+          Saved costings stay in this browser until the Vercel account build is connected.
+        </p>
+      </section>
+    </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
