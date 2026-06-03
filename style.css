@@ -618,10 +618,15 @@ textarea:focus-visible {
 }
 
 .live-summary-panel {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 205px));
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
+  padding-bottom: 12px;
+  background: var(--bg);
 }
 
 .summary-card {
@@ -1030,6 +1035,13 @@ input[type="number"] {
   font-weight: 200;
   padding: 8px 10px;
   text-align: center;
+}
+
+.cost-table input:focus,
+.cost-table input:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 72%, transparent);
+  outline: 0;
 }
 
 .cost-table .material-unit-cost,
@@ -1511,11 +1523,29 @@ input[type="number"] {
   font-weight: 400;
 }
 
-.settings-signout-button {
+.settings-media-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: end;
+}
+
+.settings-delete-button {
+  min-width: 94px;
   min-height: 40px;
-  padding: 0;
-  border: 0;
-  color: var(--muted);
+  padding: 0 22px;
+  border-color: var(--bad);
+  color: var(--bad);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.settings-signout-button {
+  min-width: 118px;
+  min-height: 44px;
+  padding: 0 24px;
+  border-color: var(--neutral);
+  color: var(--neutral);
   font-size: 14px;
   font-weight: 400;
 }
@@ -1573,6 +1603,7 @@ input[type="number"] {
     right: 44px;
     bottom: 40px;
     left: 268px;
+    width: auto;
   }
 
   .appearance-settings-panel > .settings-save-button {
@@ -1915,6 +1946,7 @@ input[type="number"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 3px;
     margin-bottom: 0;
+    padding-bottom: 0;
   }
 
   .summary-card {
@@ -2261,14 +2293,19 @@ input[type="number"] {
     grid-template-columns: 1fr;
   }
 
-  .settings-footer {
-    display: grid;
-    position: static;
-    justify-content: start;
+  .settings-media-actions {
+    justify-content: stretch;
   }
 
-  .settings-signout-button {
-    display: none;
+  .settings-media-actions button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .settings-footer {
+    display: flex;
+    position: static;
+    justify-content: space-between;
   }
 
   .settings-save-button {

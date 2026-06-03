@@ -6,7 +6,7 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.10";
+const APP_BUILD = "v2.11";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#70a480";
@@ -284,6 +284,8 @@ function populateSettingsFields() {
   const emailField = $("#settingsEmail");
   const passwordField = $("#settingsPassword");
   const confirmField = $("#settingsConfirmPassword");
+  const deleteAvatarButton = $("#deleteAvatarButton");
+  const deleteLogoButton = $("#deleteLogoButton");
 
   if (displayField) displayField.value = displayName;
   if (emailField) emailField.value = currentUser?.email || "";
@@ -305,6 +307,8 @@ function populateSettingsFields() {
     businessInitial()
   );
   applyBusinessLogo(profile.businessLogoDataUrl);
+  if (deleteAvatarButton) deleteAvatarButton.hidden = !profile.avatarDataUrl;
+  if (deleteLogoButton) deleteLogoButton.hidden = !profile.businessLogoDataUrl;
 }
 
 function splitDisplayName(name) {
@@ -385,6 +389,19 @@ async function handleProfileImageUpload(event, kind) {
   } catch (error) {
     showToast(error.message || "Image upload failed");
   }
+}
+
+function deleteProfileImage(kind) {
+  const profile = readUserProfile();
+  if (kind === "avatar") {
+    delete profile.avatarDataUrl;
+  } else {
+    delete profile.businessLogoDataUrl;
+  }
+  writeUserProfile(profile);
+  populateSettingsFields();
+  updateGreeting();
+  showToast(kind === "avatar" ? "Avatar deleted" : "Company logo reset");
 }
 
 async function saveSettings() {
@@ -1663,10 +1680,12 @@ function bindEvents() {
   });
   $("#manageAvatarButton")?.addEventListener("click", () => $("#avatarUploadInput")?.click());
   $("#avatarUploadInput")?.addEventListener("change", (event) => handleProfileImageUpload(event, "avatar"));
+  $("#deleteAvatarButton")?.addEventListener("click", () => deleteProfileImage("avatar"));
   $("#manageLogoButton")?.addEventListener("click", () => {
     $("#logoUploadInput")?.click();
   });
   $("#logoUploadInput")?.addEventListener("change", (event) => handleProfileImageUpload(event, "logo"));
+  $("#deleteLogoButton")?.addEventListener("click", () => deleteProfileImage("logo"));
   $("#signOutButton")?.addEventListener("click", async () => {
     await supabaseClient?.auth.signOut();
     handleSignedOut();

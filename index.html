@@ -578,7 +578,10 @@
                 <img id="settingsAvatarImage" alt="" hidden />
                 <span id="settingsAvatarInitials">JK</span>
               </span>
-              <button type="button" id="manageAvatarButton" class="settings-manage-button">Manage</button>
+              <div class="settings-media-actions">
+                <button type="button" id="manageAvatarButton" class="settings-manage-button">Manage</button>
+                <button type="button" id="deleteAvatarButton" class="settings-delete-button" hidden>Delete</button>
+              </div>
               <input id="avatarUploadInput" type="file" accept="image/*" hidden />
             </div>
             <div class="settings-fields">
@@ -620,7 +623,10 @@
                 <img id="companyLogoImage" alt="" hidden />
                 <span id="companyLogoInitial">B</span>
               </span>
-              <button type="button" id="manageLogoButton" class="settings-manage-button">Manage</button>
+              <div class="settings-media-actions">
+                <button type="button" id="manageLogoButton" class="settings-manage-button">Manage</button>
+                <button type="button" id="deleteLogoButton" class="settings-delete-button" hidden>Delete</button>
+              </div>
               <input id="logoUploadInput" type="file" accept="image/*" hidden />
             </div>
             <button type="button" class="settings-save-button" data-settings-save>Save</button>
