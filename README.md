@@ -2,14 +2,20 @@
 
 Static mobile-first costing calculator for Inkson garments.
 
-Current build: `v2.07`
+Current build: `v2.08`
 
 ## Files
 
 - `index.html` - app structure
 - `style.css` - responsive styling
-- `app.js` - calculations, local saves, exports, and UI state
+- `app.js` - calculations, Supabase auth, saves, exports, and UI state
 - `assets/icons/` - v2 icon assets exported from Figma
+- `supabase-schema.sql` - database table and row-level security setup for account saves
+
+## Supabase Setup
+
+Run `supabase-schema.sql` in the Supabase SQL editor before relying on cloud saves.
+Until that table exists, signed-in users can still save costings on the current browser as a fallback.
 
 ## Run Locally
 

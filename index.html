@@ -13,7 +13,108 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <section class="auth-shell" id="authShell" aria-label="Account access">
+      <div class="auth-card">
+        <div class="brand-lockup auth-brand" aria-label="Garment Cost Calculator">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Garment<br />Cost Calculator</span>
+        </div>
+
+        <div class="auth-panel is-active" data-auth-panel="login">
+          <p class="auth-kicker">Account access</p>
+          <h1>Sign in</h1>
+          <form id="loginForm" class="auth-form">
+            <div class="field">
+              <label for="loginEmail">Email</label>
+              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Password</label>
+              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <button type="submit" class="auth-primary-button">Sign in</button>
+          </form>
+          <div class="auth-links">
+            <button type="button" data-auth-view="signup">Create account</button>
+            <button type="button" data-auth-view="forgot">Forgot password?</button>
+          </div>
+        </div>
+
+        <div class="auth-panel" data-auth-panel="signup" hidden>
+          <p class="auth-kicker">Public sign up</p>
+          <h1>Create account</h1>
+          <form id="signupForm" class="auth-form">
+            <div class="auth-grid">
+              <div class="field">
+                <label for="signupFirstName">First name</label>
+                <input id="signupFirstName" name="signupFirstName" type="text" autocomplete="given-name" required />
+              </div>
+              <div class="field">
+                <label for="signupLastName">Last name</label>
+                <input id="signupLastName" name="signupLastName" type="text" autocomplete="family-name" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="signupBusinessName">Business name</label>
+              <input id="signupBusinessName" name="signupBusinessName" type="text" autocomplete="organization" />
+            </div>
+            <div class="field">
+              <label for="signupEmail">Email</label>
+              <input id="signupEmail" name="signupEmail" type="email" autocomplete="email" required />
+            </div>
+            <div class="auth-grid">
+              <div class="field">
+                <label for="signupPassword">Password</label>
+                <input id="signupPassword" name="signupPassword" type="password" autocomplete="new-password" minlength="8" required />
+              </div>
+              <div class="field">
+                <label for="signupConfirmPassword">Confirm password</label>
+                <input id="signupConfirmPassword" name="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+              </div>
+            </div>
+            <button type="submit" class="auth-primary-button">Create account</button>
+          </form>
+          <div class="auth-links">
+            <button type="button" data-auth-view="login">Already have an account?</button>
+          </div>
+        </div>
+
+        <div class="auth-panel" data-auth-panel="forgot" hidden>
+          <p class="auth-kicker">Password reset</p>
+          <h1>Reset password</h1>
+          <form id="forgotPasswordForm" class="auth-form">
+            <div class="field">
+              <label for="resetEmail">Email</label>
+              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" required />
+            </div>
+            <button type="submit" class="auth-primary-button">Send reset link</button>
+          </form>
+          <div class="auth-links">
+            <button type="button" data-auth-view="login">Back to sign in</button>
+          </div>
+        </div>
+
+        <div class="auth-panel" data-auth-panel="update-password" hidden>
+          <p class="auth-kicker">Set new password</p>
+          <h1>Update password</h1>
+          <form id="updatePasswordForm" class="auth-form">
+            <div class="field">
+              <label for="newPassword">New password</label>
+              <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" required />
+            </div>
+            <div class="field">
+              <label for="confirmNewPassword">Confirm new password</label>
+              <input id="confirmNewPassword" name="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" required />
+            </div>
+            <button type="submit" class="auth-primary-button">Update password</button>
+          </form>
+        </div>
+
+        <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <main class="app-shell" id="appShell" hidden>
       <header class="app-header" aria-label="Application header">
         <div class="brand-lockup" aria-label="Garment Cost Calculator">
           <span class="brand-mark" aria-hidden="true"></span>
@@ -470,17 +571,30 @@
         <div class="settings-content">
           <section class="settings-panel" id="accountSettingsPanel" hidden>
             <h2>Account</h2>
-            <p class="settings-muted">Account profiles will be connected in the Vercel closed beta build.</p>
+            <p class="settings-muted">Your saved costings are connected to this account when the Supabase table is available.</p>
             <dl class="account-details">
               <div>
                 <dt>User</dt>
-                <dd>Jody</dd>
+                <dd id="accountUserName">Signed in</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd id="accountUserEmail">-</dd>
+              </div>
+              <div>
+                <dt>Business</dt>
+                <dd id="accountBusinessName">-</dd>
+              </div>
+              <div>
+                <dt>Cloud sync</dt>
+                <dd id="accountCloudStatus">Checking</dd>
               </div>
               <div>
                 <dt>Build</dt>
-                <dd id="buildNumber">v2.07</dd>
+                <dd id="buildNumber">v2.08</dd>
               </div>
             </dl>
+            <button type="button" id="signOutButton" class="settings-save-button">Sign out</button>
           </section>
           <section class="settings-panel active" id="appearanceSettingsPanel">
             <h2>Choose Accent</h2>
@@ -511,14 +625,15 @@
           <h2 id="aboutTitle">Garment<br />Cost Calculator</h2>
         </div>
         <p>
-          This open version calculates garment unit cost, retail price, margin, wholesale viability, and market position.
-          Saved costings stay in this browser until the Vercel account build is connected.
+          This account version calculates garment unit cost, retail price, margin, wholesale viability, and market position.
+          Saved costings can sync to Supabase once the database table is installed.
         </p>
       </section>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="assets/vendor/supabase.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -94,6 +94,97 @@ textarea:focus-visible {
   margin: 34px auto 44px;
 }
 
+.auth-shell {
+  display: grid;
+  min-height: 100vh;
+  padding: 34px 16px;
+  place-items: center;
+}
+
+.auth-card {
+  display: grid;
+  gap: 34px;
+  width: min(520px, 100%);
+  padding: 44px 42px 38px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.auth-brand {
+  justify-self: start;
+}
+
+.auth-panel {
+  display: grid;
+  gap: 24px;
+}
+
+.auth-kicker {
+  margin: 0 0 -12px;
+  color: var(--neutral);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.auth-panel h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.auth-form {
+  display: grid;
+  gap: 24px;
+}
+
+.auth-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.auth-primary-button {
+  width: fit-content;
+  min-width: 142px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-links button {
+  min-height: 36px;
+  border-color: var(--blue);
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 400;
+  padding: 0 18px;
+}
+
+.auth-message {
+  min-height: 22px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.auth-message.success {
+  color: var(--accent);
+}
+
+.auth-message.error {
+  color: var(--bad);
+}
+
 .costing-form {
   display: grid;
   gap: 0;
@@ -341,7 +432,7 @@ textarea:focus-visible {
 .retail-card span {
   color: var(--neutral);
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.08;
   letter-spacing: 0.4px;
   text-transform: uppercase;
@@ -400,6 +491,10 @@ textarea:focus-visible {
 .summary-state-danger small {
   border-color: var(--bad);
   color: var(--bad);
+}
+
+#summaryRetailCard.summary-state-neutral span {
+  color: #fff;
 }
 
 .step-panel {
@@ -1224,6 +1319,34 @@ input[type="number"] {
 }
 
 @media (max-width: 700px) {
+  .auth-shell {
+    align-items: start;
+    padding: 17px 14px;
+  }
+
+  .auth-card {
+    gap: 28px;
+    width: 100%;
+    padding: 30px 20px 28px;
+  }
+
+  .auth-brand {
+    justify-self: center;
+  }
+
+  .auth-panel h1 {
+    font-size: 30px;
+  }
+
+  .auth-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .auth-links {
+    display: grid;
+  }
+
   .app-shell {
     width: min(var(--mobile-width), calc(100vw - 28px));
     margin: 17px auto 16px;

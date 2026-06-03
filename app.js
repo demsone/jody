@@ -2,7 +2,10 @@ const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
 const ACCENT_KEY = "gcc-accent-v1";
-const APP_BUILD = "v2.07";
+const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
+const CLOUD_TABLE = "costings";
+const APP_BUILD = "v2.08";
 const NEW_COSTING_LABEL = "Add new Costing";
 const DEFAULT_ACCENT = "#70a480";
 
@@ -64,6 +67,9 @@ let currentCostingId = null;
 let currentStep = 0;
 let calculations = {};
 let selectedAccent = DEFAULT_ACCENT;
+let supabaseClient = null;
+let currentUser = null;
+let cloudReady = false;
 
 const money = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -124,6 +130,29 @@ function makeId() {
   return `costing-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function userMetadata() {
+  return currentUser?.user_metadata || {};
+}
+
+function userFirstName() {
+  const metadata = userMetadata();
+  const fromMetadata = metadata.first_name || metadata.name || metadata.full_name;
+  const fromEmail = currentUser?.email ? currentUser.email.split("@")[0] : "there";
+  return String(fromMetadata || fromEmail).split(" ")[0] || "there";
+}
+
+function savedStorageKey() {
+  return currentUser ? `${STORAGE_KEY}:${currentUser.id}` : STORAGE_KEY;
+}
+
+function lastCostingStorageKey() {
+  return currentUser ? `${LAST_COSTING_KEY}:${currentUser.id}` : LAST_COSTING_KEY;
+}
+
+function legacyMigrationKey() {
+  return currentUser ? `inkson-legacy-migrated:${currentUser.id}` : "";
+}
+
 function showToast(message) {
   const toast = $("#toast");
   toast.textContent = message;
@@ -174,7 +203,7 @@ function applyAccent(accent) {
 function updateGreeting() {
   const hour = new Date().getHours();
   const period = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
-  setText("greetingText", `Good ${period}, Jody!`);
+  setText("greetingText", `Good ${period}, ${userFirstName()}!`);
 }
 
 function openModal(id) {
@@ -547,7 +576,7 @@ function setElementClass(element, baseClass, state) {
 
 function readLastCostingId() {
   try {
-    return localStorage.getItem(LAST_COSTING_KEY);
+    return localStorage.getItem(lastCostingStorageKey());
   } catch {
     return null;
   }
@@ -555,7 +584,7 @@ function readLastCostingId() {
 
 function rememberCurrentCosting() {
   try {
-    localStorage.setItem(LAST_COSTING_KEY, currentCostingId || "");
+    localStorage.setItem(lastCostingStorageKey(), currentCostingId || "");
   } catch {}
 }
 
@@ -752,17 +781,142 @@ function applyFormState(state, options = {}) {
   if (remember) rememberCurrentCosting();
 }
 
-function readSavedCostings() {
+function readLocalSavedCostings(key = savedStorageKey()) {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return JSON.parse(localStorage.getItem(key) || "[]");
   } catch {
     return [];
   }
 }
 
+function writeLocalSavedCostings(costings, key = savedStorageKey()) {
+  localStorage.setItem(key, JSON.stringify(costings));
+}
+
+function readSavedCostings() {
+  return readLocalSavedCostings();
+}
+
 function writeSavedCostings(costings) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(costings));
+  writeLocalSavedCostings(costings);
   renderSavedCostings();
+}
+
+function cloudStatusText() {
+  if (!currentUser) return "Signed out";
+  return cloudReady ? "Connected" : "Local fallback";
+}
+
+function updateAccountDetails() {
+  const metadata = userMetadata();
+  const fullName = [metadata.first_name, metadata.last_name].filter(Boolean).join(" ").trim();
+  setText("accountUserName", fullName || userFirstName());
+  setText("accountUserEmail", currentUser?.email || "-");
+  setText("accountBusinessName", metadata.business_name || "-");
+  setText("accountCloudStatus", cloudStatusText());
+  updateGreeting();
+}
+
+function normaliseCloudCosting(row) {
+  const payload = row.payload || {};
+  return {
+    ...payload,
+    id: payload.id || row.id,
+    title: row.title || payload.title || "Untitled costing",
+    savedAt: row.saved_at || payload.savedAt || new Date().toISOString(),
+  };
+}
+
+async function refreshCloudCostings(options = {}) {
+  const { quiet = false } = options;
+  if (!currentUser || !supabaseClient) return false;
+
+  const { data, error } = await supabaseClient
+    .from(CLOUD_TABLE)
+    .select("id,title,saved_at,payload")
+    .order("saved_at", { ascending: false });
+
+  if (error) {
+    cloudReady = false;
+    updateAccountDetails();
+    if (!quiet) showToast("Cloud save table not ready");
+    return false;
+  }
+
+  cloudReady = true;
+  writeLocalSavedCostings((data || []).map(normaliseCloudCosting));
+  renderSavedCostings();
+  updateAccountDetails();
+  return true;
+}
+
+async function saveCostingToCloud(state) {
+  if (!currentUser || !supabaseClient) return false;
+
+  const { error } = await supabaseClient.from(CLOUD_TABLE).upsert(
+    {
+      id: state.id,
+      user_id: currentUser.id,
+      title: state.title,
+      payload: state,
+      saved_at: state.savedAt,
+    },
+    { onConflict: "id" }
+  );
+
+  if (error) {
+    cloudReady = false;
+    updateAccountDetails();
+    return false;
+  }
+
+  cloudReady = true;
+  updateAccountDetails();
+  return true;
+}
+
+async function deleteCostingFromCloud(id) {
+  if (!currentUser || !supabaseClient || !id) return false;
+
+  const { error } = await supabaseClient.from(CLOUD_TABLE).delete().eq("id", id);
+  if (error) {
+    cloudReady = false;
+    updateAccountDetails();
+    return false;
+  }
+
+  cloudReady = true;
+  updateAccountDetails();
+  return true;
+}
+
+async function migrateLegacyLocalCostings(syncCloud) {
+  if (!currentUser) return;
+
+  try {
+    const migrationKey = legacyMigrationKey();
+    if (localStorage.getItem(migrationKey) === "done") return;
+
+    const legacyCostings = readLocalSavedCostings(STORAGE_KEY);
+    if (!legacyCostings.length) {
+      localStorage.setItem(migrationKey, "done");
+      return;
+    }
+
+    const existing = readSavedCostings();
+    const existingIds = new Set(existing.map((costing) => costing.id));
+    const merged = existing.concat(legacyCostings.filter((costing) => !existingIds.has(costing.id)));
+    writeSavedCostings(merged);
+
+    if (syncCloud) {
+      for (const costing of legacyCostings) {
+        await saveCostingToCloud(costing);
+      }
+    }
+
+    localStorage.setItem(migrationKey, "done");
+    showToast("Previous browser saves copied to this account");
+  } catch {}
 }
 
 function renderSavedCostings() {
@@ -794,7 +948,7 @@ function handleSavedCostingSelection(id) {
   }
 }
 
-function saveCurrentCosting() {
+async function saveCurrentCosting() {
   const state = getFormState();
   currentCostingId = state.id;
   const costings = readSavedCostings();
@@ -806,13 +960,15 @@ function saveCurrentCosting() {
   }
   writeSavedCostings(costings);
   rememberCurrentCosting();
-  showToast("Costing saved");
+  const savedToCloud = await saveCostingToCloud(state);
+  showToast(savedToCloud ? "Costing saved to account" : "Costing saved on this browser");
 }
 
-function duplicateCurrentCosting() {
+async function duplicateCurrentCosting() {
   const state = getFormState();
   state.id = makeId();
   state.title = `${state.title} copy`;
+  state.savedAt = new Date().toISOString();
   state.formValues.garmentName = state.title;
   currentCostingId = state.id;
   const costings = readSavedCostings();
@@ -820,20 +976,23 @@ function duplicateCurrentCosting() {
   writeSavedCostings(costings);
   rememberCurrentCosting();
   applyFormState(state);
-  showToast("Costing duplicated");
+  const savedToCloud = await saveCostingToCloud(state);
+  showToast(savedToCloud ? "Costing duplicated to account" : "Costing duplicated on this browser");
 }
 
-function deleteCurrentCosting() {
+async function deleteCurrentCosting() {
   if (!currentCostingId) {
     resetForm();
     showToast("Current costing cleared");
     return;
   }
 
+  const deletedId = currentCostingId;
   const costings = readSavedCostings().filter((costing) => costing.id !== currentCostingId);
   writeSavedCostings(costings);
   resetForm();
-  showToast("Costing deleted");
+  const deletedFromCloud = await deleteCostingFromCloud(deletedId);
+  showToast(deletedFromCloud ? "Costing deleted from account" : "Costing deleted on this browser");
 }
 
 function resetForm(options = {}) {
@@ -931,6 +1090,220 @@ function setLabourMode(mode) {
   updateDisplay();
 }
 
+function showAuthPanel(panelName) {
+  const nextPanel = panelName || "login";
+  $$(".auth-panel").forEach((panel) => {
+    const isActive = panel.dataset.authPanel === nextPanel;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
+function setAuthMessage(message = "", state = "") {
+  const messageElement = $("#authMessage");
+  if (!messageElement) return;
+  messageElement.textContent = message;
+  messageElement.className = `auth-message${state ? ` ${state}` : ""}`;
+}
+
+function authRedirectUrl() {
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function supabaseSdk() {
+  if (window.supabase?.createClient) return window.supabase;
+  try {
+    if (supabase?.createClient) return supabase;
+  } catch {}
+  return null;
+}
+
+function friendlyAuthError(error) {
+  const message = error?.message || "Something went wrong. Please try again.";
+  if (message.toLowerCase().includes("invalid login credentials")) return "Email or password is incorrect.";
+  if (message.toLowerCase().includes("already registered")) return "This email already has an account.";
+  return message;
+}
+
+function setAppAccess(isSignedIn) {
+  const authShell = $("#authShell");
+  const appShell = $("#appShell");
+  if (authShell) authShell.hidden = isSignedIn;
+  if (appShell) appShell.hidden = !isSignedIn;
+}
+
+async function prepareUserCostings() {
+  const cloudLoaded = await refreshCloudCostings({ quiet: true });
+  await migrateLegacyLocalCostings(cloudLoaded);
+  if (cloudLoaded) await refreshCloudCostings({ quiet: true });
+  loadInitialCosting();
+}
+
+async function handleSignedIn(user, options = {}) {
+  const { force = false } = options;
+  const isSameUser = currentUser?.id === user?.id;
+  currentUser = user || null;
+  cloudReady = false;
+  setAppAccess(true);
+  updateAccountDetails();
+  setAuthMessage("");
+
+  if (!isSameUser || force) {
+    await prepareUserCostings();
+  }
+}
+
+function handleSignedOut() {
+  currentUser = null;
+  cloudReady = false;
+  currentCostingId = null;
+  setAppAccess(false);
+  showAuthPanel("login");
+  updateAccountDetails();
+  setAuthMessage("");
+  document.title = "Inkson Garment Cost Calculator";
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  setAuthMessage("Signing in...");
+  const email = $("#loginEmail").value.trim();
+  const password = $("#loginPassword").value;
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+    return;
+  }
+
+  if (data?.user) {
+    await handleSignedIn(data.user, { force: true });
+    showToast("Signed in");
+  }
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+  const firstName = $("#signupFirstName").value.trim();
+  const lastName = $("#signupLastName").value.trim();
+  const businessName = $("#signupBusinessName").value.trim();
+  const email = $("#signupEmail").value.trim();
+  const password = $("#signupPassword").value;
+  const confirmPassword = $("#signupConfirmPassword").value;
+
+  if (password !== confirmPassword) {
+    setAuthMessage("Passwords do not match.", "error");
+    return;
+  }
+
+  setAuthMessage("Creating account...");
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        business_name: businessName,
+      },
+      emailRedirectTo: authRedirectUrl(),
+    },
+  });
+
+  if (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+    return;
+  }
+
+  if (data?.session?.user) {
+    await handleSignedIn(data.session.user, { force: true });
+    showToast("Account created");
+    return;
+  }
+
+  setAuthMessage("Account created. Check your email to confirm your account before signing in.", "success");
+  showAuthPanel("login");
+}
+
+async function handleForgotPassword(event) {
+  event.preventDefault();
+  const email = $("#resetEmail").value.trim();
+  setAuthMessage("Sending reset link...");
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: authRedirectUrl(),
+  });
+
+  if (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+    return;
+  }
+
+  setAuthMessage("Password reset link sent. Check your email.", "success");
+}
+
+async function handleUpdatePassword(event) {
+  event.preventDefault();
+  const password = $("#newPassword").value;
+  const confirmPassword = $("#confirmNewPassword").value;
+
+  if (password !== confirmPassword) {
+    setAuthMessage("Passwords do not match.", "error");
+    return;
+  }
+
+  setAuthMessage("Updating password...");
+  const { data, error } = await supabaseClient.auth.updateUser({ password });
+
+  if (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+    return;
+  }
+
+  if (data?.user) {
+    await handleSignedIn(data.user, { force: true });
+    showToast("Password updated");
+  }
+}
+
+async function initialiseAuth() {
+  const sdk = supabaseSdk();
+  if (!sdk) {
+    setAuthMessage("Account service could not load. Check the internet connection and refresh.", "error");
+    setAppAccess(false);
+    return;
+  }
+
+  supabaseClient = sdk.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === "PASSWORD_RECOVERY" && session?.user) {
+      currentUser = session.user;
+      setAppAccess(false);
+      showAuthPanel("update-password");
+      setAuthMessage("Enter a new password to finish the reset.", "success");
+      return;
+    }
+
+    if (session?.user) {
+      handleSignedIn(session.user);
+    } else {
+      handleSignedOut();
+    }
+  });
+
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+    setAppAccess(false);
+    return;
+  }
+
+  if (data?.session?.user) {
+    await handleSignedIn(data.session.user, { force: true });
+  } else {
+    handleSignedOut();
+  }
+}
+
 function bindEvents() {
   $("#costingForm").addEventListener("input", updateDisplay);
   $("#costingForm").addEventListener("change", updateDisplay);
@@ -1012,8 +1385,24 @@ function bindEvents() {
     showToast("Settings saved");
   });
   $("#manageLogoButton")?.addEventListener("click", () => {
-    showToast("Logo management will be available with user accounts");
+    showToast("Logo management is not connected yet");
   });
+  $("#signOutButton")?.addEventListener("click", async () => {
+    await supabaseClient?.auth.signOut();
+    handleSignedOut();
+    showToast("Signed out");
+  });
+
+  $$("[data-auth-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showAuthPanel(button.dataset.authView);
+      setAuthMessage("");
+    });
+  });
+  $("#loginForm")?.addEventListener("submit", handleLogin);
+  $("#signupForm")?.addEventListener("submit", handleSignup);
+  $("#forgotPasswordForm")?.addEventListener("submit", handleForgotPassword);
+  $("#updatePasswordForm")?.addEventListener("submit", handleUpdatePassword);
 
   $("#savedCostingToggle").addEventListener("click", () => {
     const picker = $("#savedCostingPicker");
@@ -1074,4 +1463,4 @@ setText("buildNumber", APP_BUILD);
 updateGreeting();
 applyAccent(readAccent());
 applyTheme(document.documentElement.dataset.theme);
-loadInitialCosting();
+initialiseAuth();
