@@ -2,11 +2,13 @@ const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
 const ACCENT_KEY = "gcc-accent-v1";
+const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.09";
+const APP_BUILD = "v2.10";
 const NEW_COSTING_LABEL = "Add new Costing";
+const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#70a480";
 
 const defaultMaterials = [
@@ -134,11 +136,58 @@ function userMetadata() {
   return currentUser?.user_metadata || {};
 }
 
-function userFirstName() {
+function userProfileStorageKey() {
+  return currentUser ? `${PROFILE_KEY}:${currentUser.id}` : PROFILE_KEY;
+}
+
+function readUserProfile() {
+  if (!currentUser) return {};
+  try {
+    return JSON.parse(localStorage.getItem(userProfileStorageKey()) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeUserProfile(profile) {
+  if (!currentUser) return;
+  try {
+    localStorage.setItem(userProfileStorageKey(), JSON.stringify(profile || {}));
+  } catch {
+    showToast("Image could not be saved in this browser");
+  }
+}
+
+function userDisplayName() {
   const metadata = userMetadata();
-  const fromMetadata = metadata.first_name || metadata.name || metadata.full_name;
+  const profile = readUserProfile();
+  const fullName = [metadata.first_name, metadata.last_name].filter(Boolean).join(" ").trim();
+  const fromEmail = currentUser?.email ? currentUser.email.split("@")[0] : "";
+  return profile.displayName || metadata.name || metadata.full_name || fullName || fromEmail || "Jody Kahlon";
+}
+
+function userFirstName() {
+  const fromMetadata = userDisplayName();
   const fromEmail = currentUser?.email ? currentUser.email.split("@")[0] : "there";
   return String(fromMetadata || fromEmail).split(" ")[0] || "there";
+}
+
+function initialsForName(name) {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return "JK";
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function businessInitial() {
+  const metadata = userMetadata();
+  return initialsForName(metadata.business_name || "Business").slice(0, 1);
 }
 
 function savedStorageKey() {
@@ -198,6 +247,194 @@ function applyAccent(accent) {
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+}
+
+function applyBusinessLogo(logoDataUrl) {
+  $$(".brand-mark").forEach((mark) => {
+    if (logoDataUrl) {
+      mark.classList.add("has-custom-logo");
+      mark.style.backgroundImage = `url("${logoDataUrl}")`;
+    } else {
+      mark.classList.remove("has-custom-logo");
+      mark.style.backgroundImage = "";
+    }
+  });
+}
+
+function updateImagePreview(container, image, fallback, dataUrl, fallbackText) {
+  if (!container || !image || !fallback) return;
+  if (dataUrl) {
+    image.src = dataUrl;
+    image.hidden = false;
+    fallback.hidden = true;
+    container.classList.add("has-image");
+  } else {
+    image.removeAttribute("src");
+    image.hidden = true;
+    fallback.hidden = false;
+    fallback.textContent = fallbackText;
+    container.classList.remove("has-image");
+  }
+}
+
+function populateSettingsFields() {
+  const profile = readUserProfile();
+  const displayName = profile.displayName || userDisplayName();
+  const displayField = $("#settingsDisplayName");
+  const emailField = $("#settingsEmail");
+  const passwordField = $("#settingsPassword");
+  const confirmField = $("#settingsConfirmPassword");
+
+  if (displayField) displayField.value = displayName;
+  if (emailField) emailField.value = currentUser?.email || "";
+  if (passwordField) passwordField.value = "";
+  if (confirmField) confirmField.value = "";
+
+  updateImagePreview(
+    $("#settingsAvatarPreview"),
+    $("#settingsAvatarImage"),
+    $("#settingsAvatarInitials"),
+    profile.avatarDataUrl,
+    initialsForName(displayName)
+  );
+  updateImagePreview(
+    $("#companyLogoPreview"),
+    $("#companyLogoImage"),
+    $("#companyLogoInitial"),
+    profile.businessLogoDataUrl,
+    businessInitial()
+  );
+  applyBusinessLogo(profile.businessLogoDataUrl);
+}
+
+function splitDisplayName(name) {
+  const parts = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  return {
+    firstName: parts[0] || "",
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function resizeImageDataUrl(dataUrl, fileType, maxSize) {
+  if (fileType === "image/svg+xml") return Promise.resolve(dataUrl);
+
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const largestSide = Math.max(image.width, image.height);
+      if (!largestSide || largestSide <= maxSize) {
+        resolve(dataUrl);
+        return;
+      }
+
+      const scale = maxSize / largestSide;
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const outputType = fileType === "image/jpeg" ? "image/jpeg" : "image/png";
+      resolve(canvas.toDataURL(outputType, 0.9));
+    };
+    image.onerror = reject;
+    image.src = dataUrl;
+  });
+}
+
+async function imageFileToDataUrl(file, maxSize) {
+  if (!file || !file.type.startsWith("image/")) {
+    throw new Error("Choose an image file");
+  }
+  if (file.size > 6 * 1024 * 1024) {
+    throw new Error("Choose an image under 6 MB");
+  }
+  const dataUrl = await readFileAsDataUrl(file);
+  return resizeImageDataUrl(dataUrl, file.type, maxSize);
+}
+
+async function handleProfileImageUpload(event, kind) {
+  const input = event.target;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+
+  try {
+    const profile = readUserProfile();
+    const dataUrl = await imageFileToDataUrl(file, kind === "avatar" ? 256 : 640);
+    if (kind === "avatar") {
+      profile.avatarDataUrl = dataUrl;
+    } else {
+      profile.businessLogoDataUrl = dataUrl;
+    }
+    writeUserProfile(profile);
+    populateSettingsFields();
+    updateGreeting();
+    showToast(kind === "avatar" ? "Avatar updated" : "Company logo updated");
+  } catch (error) {
+    showToast(error.message || "Image upload failed");
+  }
+}
+
+async function saveSettings() {
+  const displayName = $("#settingsDisplayName")?.value.trim() || userDisplayName();
+  const email = $("#settingsEmail")?.value.trim() || currentUser?.email || "";
+  const password = $("#settingsPassword")?.value || "";
+  const confirmPassword = $("#settingsConfirmPassword")?.value || "";
+
+  if (password || confirmPassword) {
+    if (password !== confirmPassword) {
+      showToast("Passwords do not match");
+      return;
+    }
+    if (password.length < 8) {
+      showToast("Password must be at least 8 characters");
+      return;
+    }
+  }
+
+  const profile = readUserProfile();
+  profile.displayName = displayName;
+  writeUserProfile(profile);
+  saveAccent(selectedAccent);
+
+  if (supabaseClient && currentUser) {
+    const { firstName, lastName } = splitDisplayName(displayName);
+    const updates = {
+      data: {
+        ...userMetadata(),
+        name: displayName,
+        full_name: displayName,
+        first_name: firstName,
+        last_name: lastName,
+      },
+    };
+    if (email && email !== currentUser.email) updates.email = email;
+    if (password) updates.password = password;
+
+    const { data, error } = await supabaseClient.auth.updateUser(updates);
+    if (error) {
+      showToast(friendlyAuthError(error));
+      return;
+    }
+    if (data?.user) currentUser = data.user;
+  }
+
+  populateSettingsFields();
+  updateGreeting();
+  closeOpenModals();
+  showToast("Settings saved");
 }
 
 function updateGreeting() {
@@ -589,12 +826,16 @@ function rememberCurrentCosting() {
 }
 
 function getCurrentCostingTitle() {
-  if (!currentCostingId) return NEW_COSTING_LABEL;
+  if (!currentCostingId) return newCostingLabel();
   return $("#garmentName").value.trim() || "Untitled costing";
 }
 
 function sortedSavedCostings() {
   return readSavedCostings().slice().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+}
+
+function newCostingLabel() {
+  return window.matchMedia("(max-width: 700px)").matches ? MOBILE_NEW_COSTING_LABEL : NEW_COSTING_LABEL;
 }
 
 function setSavedCostingMenuOpen(isOpen) {
@@ -662,7 +903,7 @@ function updateCurrentCostingLabel() {
   }
 
   const newOption = select.querySelector('option[value=""]');
-  if (newOption) newOption.textContent = NEW_COSTING_LABEL;
+  if (newOption) newOption.textContent = newCostingLabel();
 
   if (!currentCostingId) {
     syncSavedCostingPicker();
@@ -808,12 +1049,7 @@ function cloudStatusText() {
 }
 
 function updateAccountDetails() {
-  const metadata = userMetadata();
-  const fullName = [metadata.first_name, metadata.last_name].filter(Boolean).join(" ").trim();
-  setText("accountUserName", fullName || userFirstName());
-  setText("accountUserEmail", currentUser?.email || "-");
-  setText("accountBusinessName", metadata.business_name || "-");
-  setText("accountCloudStatus", cloudStatusText());
+  populateSettingsFields();
   updateGreeting();
 }
 
@@ -922,7 +1158,7 @@ async function migrateLegacyLocalCostings(syncCloud) {
 function renderSavedCostings() {
   const select = $("#savedCostings");
   const costings = sortedSavedCostings();
-  select.innerHTML = `<option value="">${NEW_COSTING_LABEL}</option>`;
+  select.innerHTML = `<option value="">${newCostingLabel()}</option>`;
   costings
     .forEach((costing) => {
       const option = document.createElement("option");
@@ -1403,7 +1639,10 @@ function bindEvents() {
     saveTheme(nextTheme);
   });
 
-  $("#settingsButton")?.addEventListener("click", () => openModal("settingsModal"));
+  $("#settingsButton")?.addEventListener("click", () => {
+    updateAccountDetails();
+    openModal("settingsModal");
+  });
   $("#aboutButton")?.addEventListener("click", () => openModal("aboutModal"));
   $$("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", () => closeModal(button.closest(".modal-backdrop")));
@@ -1419,14 +1658,15 @@ function bindEvents() {
   $$(".accent-swatch").forEach((button) => {
     button.addEventListener("click", () => applyAccent(button.dataset.accent));
   });
-  $("#settingsSaveButton")?.addEventListener("click", () => {
-    saveAccent(selectedAccent);
-    closeOpenModals();
-    showToast("Settings saved");
+  $$("[data-settings-save]").forEach((button) => {
+    button.addEventListener("click", saveSettings);
   });
+  $("#manageAvatarButton")?.addEventListener("click", () => $("#avatarUploadInput")?.click());
+  $("#avatarUploadInput")?.addEventListener("change", (event) => handleProfileImageUpload(event, "avatar"));
   $("#manageLogoButton")?.addEventListener("click", () => {
-    showToast("Logo management is not connected yet");
+    $("#logoUploadInput")?.click();
   });
+  $("#logoUploadInput")?.addEventListener("change", (event) => handleProfileImageUpload(event, "logo"));
   $("#signOutButton")?.addEventListener("click", async () => {
     await supabaseClient?.auth.signOut();
     handleSignedOut();
@@ -1469,6 +1709,8 @@ function bindEvents() {
     }
   });
 
+  window.addEventListener("resize", syncSavedCostingPicker);
+
   $("#savedCostings").addEventListener("change", (event) => {
     handleSavedCostingSelection(event.target.value);
   });
@@ -1499,7 +1741,6 @@ function loadInitialCosting() {
 createStaticFields();
 loadDefaultMaterials();
 bindEvents();
-setText("buildNumber", APP_BUILD);
 updateGreeting();
 applyAccent(readAccent());
 applyTheme(document.documentElement.dataset.theme);

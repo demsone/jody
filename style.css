@@ -425,6 +425,14 @@ textarea:focus-visible {
   mask: url("assets/icons/dress-1.svg") center / contain no-repeat;
 }
 
+.brand-mark.has-custom-logo {
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  mask: none;
+}
+
 .app-header-actions {
   display: inline-flex;
   align-items: center;
@@ -449,11 +457,20 @@ textarea:focus-visible {
   padding: 0;
   border-color: var(--neutral);
   border-radius: 8px;
+  color: var(--neutral);
 }
 
 .header-icon-button img {
+  display: none;
+}
+
+.header-icon-button::before {
+  content: "";
+  display: block;
   width: 17px;
   height: 17px;
+  background: currentColor;
+  mask: url("assets/icons/settings.svg") center / contain no-repeat;
 }
 
 .header-learn-button {
@@ -1327,6 +1344,7 @@ input[type="number"] {
 .settings-modal {
   display: grid;
   grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 34px;
   padding: 82px 44px 40px;
 }
@@ -1391,6 +1409,7 @@ input[type="number"] {
 
 .settings-content {
   display: grid;
+  height: 100%;
   min-width: 0;
 }
 
@@ -1398,10 +1417,16 @@ input[type="number"] {
   display: grid;
   align-content: start;
   gap: 28px;
+  height: 100%;
   min-height: 100%;
 }
 
+.account-settings-panel {
+  gap: 28px;
+}
+
 .settings-panel h2 {
+  width: min(362px, 100%);
   margin: 0;
   padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
@@ -1410,10 +1435,96 @@ input[type="number"] {
   font-weight: 600;
 }
 
+.settings-avatar-row {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: space-between;
+  width: min(362px, 100%);
+}
+
+.settings-avatar-preview,
+.company-logo-token {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #ef4b9a;
+  color: var(--text);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.settings-avatar-preview img,
+.company-logo-token img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-fields {
+  display: grid;
+  gap: 28px;
+  width: min(362px, 100%);
+}
+
+.settings-field {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-field label {
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.settings-field input {
+  min-height: 28px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 300;
+  padding-bottom: 11px;
+}
+
+.settings-footer {
+  display: flex;
+  align-self: end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.settings-manage-button {
+  min-width: 108px;
+  min-height: 40px;
+  padding: 0 24px;
+  border-color: var(--neutral);
+  color: var(--neutral);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.settings-signout-button {
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
 .accent-swatches {
   display: flex;
   gap: 13px;
   align-items: center;
+  width: min(362px, 100%);
   margin-bottom: 54px;
 }
 
@@ -1437,18 +1548,11 @@ input[type="number"] {
   grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: center;
+  width: min(362px, 100%);
 }
 
 .company-logo-token {
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
   background: var(--table-body);
-  color: var(--text);
-  font-size: 22px;
-  font-weight: 800;
 }
 
 .settings-save-button {
@@ -1457,6 +1561,25 @@ input[type="number"] {
   min-width: 118px;
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.appearance-settings-panel > .settings-save-button {
+  margin-top: auto;
+}
+
+@media (min-width: 701px) {
+  .settings-footer {
+    position: absolute;
+    right: 44px;
+    bottom: 40px;
+    left: 268px;
+  }
+
+  .appearance-settings-panel > .settings-save-button {
+    position: absolute;
+    right: 44px;
+    bottom: 40px;
+  }
 }
 
 .settings-muted {
@@ -1694,7 +1817,7 @@ input[type="number"] {
     grid-template-columns: 1fr auto auto;
     gap: 8px;
     min-height: auto;
-    margin-bottom: 18px;
+    margin-bottom: 34px;
     padding-bottom: 0;
     border-bottom: 0;
   }
@@ -1823,6 +1946,7 @@ input[type="number"] {
   }
 
   .step-panel {
+    position: relative;
     border-radius: 0 0 var(--radius-card) var(--radius-card);
   }
 
@@ -1867,11 +1991,19 @@ input[type="number"] {
   }
 
   .step-refresh-button {
+    position: absolute;
+    left: 50%;
+    bottom: 88px;
+    transform: translateX(-50%);
     justify-self: center;
     width: 38px;
     height: 38px;
     min-height: 38px;
-    margin: 0 auto;
+    margin: 0;
+  }
+
+  .step-panel:has(.single-selection) .step-refresh-button {
+    bottom: 205px;
   }
 
   .form-grid,
@@ -2080,17 +2212,22 @@ input[type="number"] {
   }
 
   .modal-backdrop {
-    align-items: start;
-    padding: 18px 14px;
+    place-items: center;
+    padding: 18px 22px;
     overflow-y: auto;
   }
 
   .settings-modal {
     width: 100%;
-    min-height: 640px;
+    min-height: 630px;
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
     gap: 28px;
-    padding: 70px 24px 30px;
+    padding: 34px 20px 30px;
+  }
+
+  .settings-modal .modal-close-button {
+    display: none;
   }
 
   .settings-tabs {
@@ -2100,6 +2237,18 @@ input[type="number"] {
   .settings-tab {
     justify-content: center;
     padding: 0 10px;
+  }
+
+  .settings-avatar-row,
+  .settings-fields,
+  .settings-panel h2,
+  .accent-swatches,
+  .company-logo-row {
+    width: 100%;
+  }
+
+  .settings-field label {
+    font-size: 17px;
   }
 
   .accent-swatches {
@@ -2112,8 +2261,22 @@ input[type="number"] {
     grid-template-columns: 1fr;
   }
 
+  .settings-footer {
+    display: grid;
+    position: static;
+    justify-content: start;
+  }
+
+  .settings-signout-button {
+    display: none;
+  }
+
   .settings-save-button {
-    justify-self: stretch;
+    justify-self: start;
+  }
+
+  .appearance-settings-panel > .settings-save-button {
+    position: static;
   }
 
   .about-modal {

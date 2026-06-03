@@ -562,44 +562,49 @@
       <section class="settings-modal" role="dialog" aria-modal="true" aria-label="User settings">
         <button type="button" class="modal-close-button" data-close-modal aria-label="Close settings">×</button>
         <nav class="settings-tabs" aria-label="Settings sections">
-          <button type="button" class="settings-tab" data-settings-tab="account" aria-selected="false">
+          <button type="button" class="settings-tab active" data-settings-tab="account" aria-selected="true">
             <span class="settings-tab-icon user-tab-icon" aria-hidden="true"></span>
             Account
           </button>
-          <button type="button" class="settings-tab active" data-settings-tab="appearance" aria-selected="true">
+          <button type="button" class="settings-tab" data-settings-tab="appearance" aria-selected="false">
             <span class="settings-tab-icon appearance-tab-icon" aria-hidden="true"></span>
             Appearance
           </button>
         </nav>
         <div class="settings-content">
-          <section class="settings-panel" id="accountSettingsPanel" hidden>
-            <h2>Account</h2>
-            <p class="settings-muted">Your saved costings are connected to this account when the Supabase table is available.</p>
-            <dl class="account-details">
-              <div>
-                <dt>User</dt>
-                <dd id="accountUserName">Signed in</dd>
+          <section class="settings-panel active account-settings-panel" id="accountSettingsPanel">
+            <div class="settings-avatar-row">
+              <span class="settings-avatar-preview" id="settingsAvatarPreview" aria-hidden="true">
+                <img id="settingsAvatarImage" alt="" hidden />
+                <span id="settingsAvatarInitials">JK</span>
+              </span>
+              <button type="button" id="manageAvatarButton" class="settings-manage-button">Manage</button>
+              <input id="avatarUploadInput" type="file" accept="image/*" hidden />
+            </div>
+            <div class="settings-fields">
+              <div class="settings-field">
+                <label for="settingsDisplayName">Display Name</label>
+                <input id="settingsDisplayName" name="settingsDisplayName" type="text" autocomplete="name" placeholder="Jody Kahlon" />
               </div>
-              <div>
-                <dt>Email</dt>
-                <dd id="accountUserEmail">-</dd>
+              <div class="settings-field">
+                <label for="settingsEmail">Email</label>
+                <input id="settingsEmail" name="settingsEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" />
               </div>
-              <div>
-                <dt>Business</dt>
-                <dd id="accountBusinessName">-</dd>
+              <div class="settings-field">
+                <label for="settingsPassword">Password</label>
+                <input id="settingsPassword" name="settingsPassword" type="password" autocomplete="new-password" placeholder="Me@Home.Com" />
               </div>
-              <div>
-                <dt>Cloud sync</dt>
-                <dd id="accountCloudStatus">Checking</dd>
+              <div class="settings-field">
+                <label for="settingsConfirmPassword">Confirm Password</label>
+                <input id="settingsConfirmPassword" name="settingsConfirmPassword" type="password" autocomplete="new-password" placeholder="Me@Home.Com" />
               </div>
-              <div>
-                <dt>Build</dt>
-                <dd id="buildNumber">v2.08</dd>
-              </div>
-            </dl>
-            <button type="button" id="signOutButton" class="settings-save-button">Sign out</button>
+            </div>
+            <div class="settings-footer">
+              <button type="button" id="signOutButton" class="settings-signout-button">Sign out</button>
+              <button type="button" class="settings-save-button" data-settings-save>Save</button>
+            </div>
           </section>
-          <section class="settings-panel active" id="appearanceSettingsPanel">
+          <section class="settings-panel appearance-settings-panel" id="appearanceSettingsPanel" hidden>
             <h2>Choose Accent</h2>
             <div class="accent-swatches" id="accentSwatches" aria-label="Choose accent colour">
               <button type="button" class="accent-swatch" data-accent="#ef4b9a" style="--swatch: #ef4b9a" aria-label="Pink accent"></button>
@@ -611,10 +616,14 @@
             </div>
             <h2>Choose Company Logo</h2>
             <div class="company-logo-row">
-              <span class="company-logo-token">B</span>
-              <button type="button" id="manageLogoButton" class="utility-button">Manage</button>
+              <span class="company-logo-token" id="companyLogoPreview" aria-hidden="true">
+                <img id="companyLogoImage" alt="" hidden />
+                <span id="companyLogoInitial">B</span>
+              </span>
+              <button type="button" id="manageLogoButton" class="settings-manage-button">Manage</button>
+              <input id="logoUploadInput" type="file" accept="image/*" hidden />
             </div>
-            <button type="button" id="settingsSaveButton" class="settings-save-button">Save</button>
+            <button type="button" class="settings-save-button" data-settings-save>Save</button>
           </section>
         </div>
       </section>
