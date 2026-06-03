@@ -16,9 +16,17 @@
   --bad: #c4533a;
   --blue: #82b0df;
   --accent: #70a480;
+  --accent-tint: rgba(112, 164, 128, 0.1);
+  --accent-hover: #518e63;
+  --accent-bright: #70a480;
+  --hit: #d6a946;
+  --hit-hover: #d4ba80;
+  --neutral-tint: rgba(196, 163, 90, 0.07);
+  --bad-tint: rgba(196, 83, 58, 0.1);
   --button-icon: #f4f1e96b;
   --button-border: #f4f1e952;
   --button-fill: #f4f1e905;
+  --button-hover-border: #f4edda;
   --brand-500: #f4f1e9;
   --table-body: #1d1d1e7d;
   --form-width: 1057px;
@@ -70,22 +78,28 @@ button {
   font-weight: 600;
   min-height: 44px;
   padding: 0 32px;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease,
+    opacity 140ms ease;
 }
 
 button:hover {
   background: transparent;
-  opacity: 0.5;
+  opacity: 1;
 }
 
 button:focus-visible {
-  outline: 1px solid currentColor;
-  outline-offset: 2px;
+  box-shadow: 0 0 0 1px currentColor;
+  outline: 0;
 }
 
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  border-bottom: 1px solid var(--neutral);
+  border-bottom: 1px solid var(--hit);
   outline: 0;
 }
 
@@ -241,12 +255,30 @@ textarea:focus-visible {
 
 .auth-primary-button {
   border-color: var(--accent);
+  background: var(--accent-tint);
   color: var(--accent);
 }
 
 .auth-secondary-button {
   border-color: var(--blue);
+  background: rgba(130, 176, 223, 0.1);
   color: var(--blue);
+}
+
+.auth-primary-button:hover,
+.auth-primary-button:focus-visible {
+  border-color: var(--accent-hover);
+  background: transparent;
+  color: var(--accent-hover);
+}
+
+.auth-secondary-button:hover,
+.auth-secondary-button:focus-visible,
+.auth-links button:hover,
+.auth-links button:focus-visible {
+  border-color: #6298cd;
+  background: transparent;
+  color: #6298cd;
 }
 
 .auth-shell[data-auth-panel="login"] .auth-primary-button,
@@ -283,6 +315,7 @@ textarea:focus-visible {
 
 .auth-links button {
   border-color: var(--blue);
+  background: rgba(130, 176, 223, 0.1);
   color: var(--blue);
   flex: 1 1 0;
   min-width: 0;
@@ -455,9 +488,10 @@ textarea:focus-visible {
   height: 40px;
   min-height: 40px;
   padding: 0;
-  border-color: var(--neutral);
+  border-color: var(--accent);
   border-radius: 8px;
-  color: var(--neutral);
+  background: var(--button-fill);
+  color: var(--accent);
 }
 
 .header-icon-button img {
@@ -475,12 +509,22 @@ textarea:focus-visible {
 
 .header-learn-button {
   min-height: 40px;
-  border-color: var(--neutral);
+  border-color: var(--accent);
   border-radius: 8px;
-  color: var(--neutral);
+  background: var(--button-fill);
+  color: var(--accent);
   font-size: 12px;
   font-weight: 400;
   padding: 0 22px;
+}
+
+.header-icon-button:hover,
+.header-icon-button:focus-visible,
+.header-learn-button:hover,
+.header-learn-button:focus-visible {
+  border-color: var(--accent);
+  background: transparent;
+  color: var(--accent-bright);
 }
 
 .toolbar {
@@ -539,13 +583,19 @@ textarea:focus-visible {
   transition: transform 140ms ease;
 }
 
+.saved-costing-toggle:hover,
+.saved-costing-toggle:focus-visible {
+  border-color: var(--hit);
+  color: var(--text);
+}
+
 .saved-costing.is-open {
   padding: 0;
 }
 
 .saved-costing.is-open .saved-costing-toggle {
   border-width: 0 0 1px;
-  border-bottom-color: var(--border);
+  border-bottom-color: var(--hit);
   border-radius: 0;
 }
 
@@ -585,6 +635,7 @@ textarea:focus-visible {
 }
 
 .saved-costing-option.is-current,
+.saved-costing-option:hover,
 .saved-costing-option:focus-visible {
   background: var(--table-body);
   color: var(--neutral);
@@ -610,11 +661,26 @@ textarea:focus-visible {
   border-color: var(--button-border);
   border-radius: 8px;
   background: var(--button-fill);
+  color: var(--button-icon);
 }
 
 .icon-action img {
   max-width: 16px;
   max-height: 16px;
+  opacity: 0.42;
+  transition: opacity 140ms ease;
+}
+
+.icon-action:hover,
+.icon-action:focus-visible {
+  border-color: var(--button-hover-border);
+  background: var(--button-fill);
+  color: var(--text);
+}
+
+.icon-action:hover img,
+.icon-action:focus-visible img {
+  opacity: 1;
 }
 
 .live-summary-panel {
@@ -811,15 +877,28 @@ textarea:focus-visible {
   height: 44px;
   min-height: 44px;
   padding: 0;
-  border-color: var(--button-border);
+  border-color: var(--muted);
   border-radius: 50%;
   background: transparent;
+  color: var(--muted);
 }
 
 .step-refresh-button img {
   width: 16px;
   height: 16px;
-  opacity: 0.8;
+  opacity: 0.66;
+  transition: opacity 140ms ease;
+}
+
+.step-refresh-button:hover,
+.step-refresh-button:focus-visible {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.step-refresh-button:hover img,
+.step-refresh-button:focus-visible img {
+  opacity: 1;
 }
 
 .form-grid {
@@ -937,16 +1016,25 @@ input[type="number"] {
   height: 35px;
   min-width: 164px;
   padding: 0 44px;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 12px;
+  background: transparent;
   color: var(--muted);
   font-size: 16px;
   font-weight: 500;
 }
 
 .tabs button.active {
-  background: var(--accent);
-  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-bright);
+}
+
+.tabs button:hover,
+.tabs button:focus-visible {
+  border-color: var(--accent);
+  background: transparent;
+  color: var(--accent-bright);
 }
 
 .labour-fields {
@@ -1039,8 +1127,8 @@ input[type="number"] {
 
 .cost-table input:focus,
 .cost-table input:focus-visible {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 72%, transparent);
+  border-color: var(--hit);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hit) 72%, transparent);
   outline: 0;
 }
 
@@ -1078,12 +1166,20 @@ input[type="number"] {
   min-height: 24px;
   border: 0;
   border-radius: 0;
+  color: var(--button-icon);
   padding: 0;
 }
 
 .row-icon img {
   max-width: 16px;
   max-height: 16px;
+  opacity: 0.66;
+  transition: opacity 140ms ease;
+}
+
+.row-icon:hover img,
+.row-icon:focus-visible img {
+  opacity: 1;
 }
 
 .competitor-table {
@@ -1133,15 +1229,23 @@ input[type="number"] {
 
 .wizard-actions button {
   width: 98px;
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent);
   padding: 0;
 }
 
 .wizard-actions .utility-button {
   width: auto;
   min-width: 148px;
-  border-color: var(--blue);
-  color: var(--blue);
   padding: 0 32px;
+}
+
+.wizard-actions button:hover,
+.wizard-actions button:focus-visible {
+  border-color: var(--accent-hover);
+  background: transparent;
+  color: var(--accent-hover);
 }
 
 .single-selection {
@@ -1405,6 +1509,12 @@ input[type="number"] {
   color: var(--text);
 }
 
+.settings-tab:hover,
+.settings-tab:focus-visible {
+  background: rgba(244, 241, 233, 0.14);
+  color: var(--text);
+}
+
 .settings-tab-icon {
   width: 20px;
   height: 20px;
@@ -1518,9 +1628,17 @@ input[type="number"] {
   min-height: 40px;
   padding: 0 24px;
   border-color: var(--neutral);
+  background: var(--neutral-tint);
   color: var(--neutral);
   font-size: 14px;
   font-weight: 400;
+}
+
+.settings-manage-button:hover,
+.settings-manage-button:focus-visible {
+  border-color: var(--hit-hover);
+  background: transparent;
+  color: var(--hit-hover);
 }
 
 .settings-media-actions {
@@ -1535,9 +1653,17 @@ input[type="number"] {
   min-height: 40px;
   padding: 0 22px;
   border-color: var(--bad);
+  background: var(--bad-tint);
   color: var(--bad);
   font-size: 14px;
   font-weight: 400;
+}
+
+.settings-delete-button:hover,
+.settings-delete-button:focus-visible {
+  border-color: #b8482f;
+  background: transparent;
+  color: #b8482f;
 }
 
 .settings-signout-button {
@@ -1545,9 +1671,17 @@ input[type="number"] {
   min-height: 44px;
   padding: 0 24px;
   border-color: var(--neutral);
+  background: var(--neutral-tint);
   color: var(--neutral);
   font-size: 14px;
   font-weight: 400;
+}
+
+.settings-signout-button:hover,
+.settings-signout-button:focus-visible {
+  border-color: var(--hit-hover);
+  background: transparent;
+  color: var(--hit-hover);
 }
 
 .accent-swatches {
@@ -1590,7 +1724,15 @@ input[type="number"] {
   align-self: end;
   min-width: 118px;
   border-color: var(--accent);
+  background: var(--accent-tint);
   color: var(--accent);
+}
+
+.settings-save-button:hover,
+.settings-save-button:focus-visible {
+  border-color: var(--accent-hover);
+  background: transparent;
+  color: var(--accent-hover);
 }
 
 .appearance-settings-panel > .settings-save-button {

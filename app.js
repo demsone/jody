@@ -6,10 +6,20 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.11";
+const APP_BUILD = "v2.12";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#70a480";
+const ACCENT_STATES = {
+  "#ef4b9a": { tint: "rgba(239, 75, 154, 0.1)", hover: "#ef4b9a", bright: "#f16ead" },
+  "#82b0df": { tint: "rgba(130, 176, 223, 0.1)", hover: "#6298cd", bright: "#82b0df" },
+  "#c4533a": { tint: "rgba(196, 83, 58, 0.1)", hover: "#b8482f", bright: "#c4533a" },
+  "#70a480": { tint: "rgba(112, 164, 128, 0.1)", hover: "#518e63", bright: "#70a480" },
+  "#c4a35a": { tint: "rgba(196, 163, 90, 0.07)", hover: "#d6a946", bright: "#d6a946" },
+  "#d6a946": { tint: "rgba(196, 163, 90, 0.07)", hover: "#d6a946", bright: "#d6a946" },
+  "#a8b0ae": { tint: "rgba(168, 176, 174, 0.1)", hover: "#f4edda", bright: "#a8b0ae" },
+  "#1d1d1e": { tint: "rgba(244, 241, 233, 0.02)", hover: "#f4edda", bright: "#f4f1e9" },
+};
 
 const defaultMaterials = [
   "Main fabric",
@@ -241,7 +251,11 @@ function saveAccent(accent) {
 
 function applyAccent(accent) {
   selectedAccent = accent || DEFAULT_ACCENT;
+  const accentState = ACCENT_STATES[selectedAccent.toLowerCase()] || ACCENT_STATES[DEFAULT_ACCENT];
   document.documentElement.style.setProperty("--accent", selectedAccent);
+  document.documentElement.style.setProperty("--accent-tint", accentState.tint);
+  document.documentElement.style.setProperty("--accent-hover", accentState.hover);
+  document.documentElement.style.setProperty("--accent-bright", accentState.bright);
   $$(".accent-swatch").forEach((button) => {
     const isActive = button.dataset.accent?.toLowerCase() === selectedAccent.toLowerCase();
     button.classList.toggle("active", isActive);
