@@ -2,7 +2,7 @@
 
 Static mobile-first costing calculator for Inkson garments.
 
-Current build: `v2.05`
+Current build: `v2.06`
 
 ## Files
 

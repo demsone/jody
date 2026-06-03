@@ -2,7 +2,7 @@ const STORAGE_KEY = "inkson-costings-v1";
 const THEME_KEY = "inkson-theme-v1";
 const LAST_COSTING_KEY = "inkson-last-costing-v1";
 const ACCENT_KEY = "gcc-accent-v1";
-const APP_BUILD = "v2.05";
+const APP_BUILD = "v2.06";
 const NEW_COSTING_LABEL = "Add new Costing";
 const DEFAULT_ACCENT = "#70a480";
 
@@ -535,6 +535,11 @@ function getStatusIcon(state) {
   return "assets/icons/info.svg";
 }
 
+function getSummaryStatusIcon(state) {
+  if (state === "warning") return "assets/icons/info.svg";
+  return getStatusIcon(state);
+}
+
 function setElementClass(element, baseClass, state) {
   if (!element) return;
   element.className = `${baseClass} summary-state-${state}`;
@@ -684,7 +689,7 @@ function updateDisplay() {
   setElementClass($("#summaryRetailCard"), "summary-card retail-card", state);
   setElementClass($("#pricingSummaryCard"), "pricing-summary", state);
   if (summaryStatus) summaryStatus.textContent = calculations.wholesaleStatus;
-  if (summaryStatusIcon) summaryStatusIcon.src = statusIcon;
+  if (summaryStatusIcon) summaryStatusIcon.src = getSummaryStatusIcon(state);
   if (pricingWarningIcon) pricingWarningIcon.src = statusIcon;
   setText("pricingWarningText", statusText);
   if (wholesaleOutput) wholesaleOutput.className = calculations.wholesaleClass;

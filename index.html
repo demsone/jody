@@ -21,10 +21,12 @@
         </div>
         <div class="app-header-actions">
           <span id="greetingText">Good Afternoon, Jody!</span>
-          <button type="button" id="settingsButton" class="header-icon-button" aria-label="Open settings">
-            <img src="assets/icons/painbrush.svg" alt="" />
-          </button>
-          <button type="button" id="aboutButton" class="header-learn-button">Learn About GCC</button>
+          <div class="app-header-button-group">
+            <button type="button" id="settingsButton" class="header-icon-button" aria-label="Open settings">
+              <img src="assets/icons/settings.svg" alt="" />
+            </button>
+            <button type="button" id="aboutButton" class="header-learn-button">Learn About GCC</button>
+          </div>
         </div>
       </header>
       <form id="costingForm" class="costing-form" autocomplete="off">
@@ -476,7 +478,7 @@
               </div>
               <div>
                 <dt>Build</dt>
-                <dd id="buildNumber">v2.05</dd>
+                <dd id="buildNumber">v2.06</dd>
               </div>
             </dl>
           </section>
