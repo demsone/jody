@@ -1,8 +1,8 @@
-# Inkson Garment Cost Calculator
+# Garment Cost Calculator
 
-Static mobile-first costing calculator for Inkson garments.
+Static mobile-first garment costing calculator.
 
-Current build: `v2.08`
+Current build: `v2.15`
 
 ## Files
 

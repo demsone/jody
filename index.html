@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Inkson Garment Cost Calculator</title>
+    <title>Garment Cost Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -124,7 +124,7 @@
           <span>Garment<br />Cost Calculator</span>
         </div>
         <div class="app-header-actions">
-          <span id="greetingText">Good Afternoon, Jody!</span>
+          <span id="greetingText">Good Afternoon, User!</span>
           <div class="app-header-button-group">
             <button type="button" id="settingsButton" class="header-icon-button" aria-label="Open settings">
               <img src="assets/icons/settings.svg" alt="" />
@@ -535,7 +535,7 @@
             <section class="output-section">
               <h2>Retail Expectations</h2>
               <div class="output-pairs">
-                <div><span>Inkson proposed retail</span><strong id="compInksonRetail">$0.00</strong></div>
+                <div><span>Proposed retail</span><strong id="compProposedRetail">$0.00</strong></div>
                 <div><span>Lowest competitor price</span><strong id="compLowest">$0.00</strong></div>
                 <div><span>Highest competitor price</span><strong id="compHighest">$0.00</strong></div>
                 <div><span>Average competitor price</span><strong id="compAverage">$0.00</strong></div>
@@ -587,7 +587,7 @@
             <div class="settings-fields">
               <div class="settings-field">
                 <label for="settingsDisplayName">Display Name</label>
-                <input id="settingsDisplayName" name="settingsDisplayName" type="text" autocomplete="name" placeholder="Jody Kahlon" />
+                <input id="settingsDisplayName" name="settingsDisplayName" type="text" autocomplete="name" placeholder="User name" />
               </div>
               <div class="settings-field">
                 <label for="settingsEmail">Email</label>
@@ -611,11 +611,11 @@
             <h2>Choose Accent</h2>
             <div class="accent-swatches" id="accentSwatches" aria-label="Choose accent colour">
               <button type="button" class="accent-swatch" data-accent="#ef4b9a" style="--swatch: #ef4b9a" aria-label="Pink accent"></button>
-              <button type="button" class="accent-swatch" data-accent="#82b0df" style="--swatch: #82b0df" aria-label="Blue accent"></button>
+              <button type="button" class="accent-swatch active" data-accent="#82b0df" style="--swatch: #82b0df" aria-label="Blue accent"></button>
               <button type="button" class="accent-swatch" data-accent="#c4533a" style="--swatch: #c4533a" aria-label="Red accent"></button>
-              <button type="button" class="accent-swatch active" data-accent="#70a480" style="--swatch: #70a480" aria-label="Green accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#70a480" style="--swatch: #70a480" aria-label="Green accent"></button>
               <button type="button" class="accent-swatch" data-accent="#a8b0ae" style="--swatch: #a8b0ae" aria-label="Grey accent"></button>
-              <button type="button" class="accent-swatch" data-accent="#1d1d1e" style="--swatch: #1d1d1e" aria-label="Black accent"></button>
+              <button type="button" class="accent-swatch" data-accent="#c4a35a" style="--swatch: #c4a35a" aria-label="Yellow accent"></button>
             </div>
             <h2>Choose Company Logo</h2>
             <div class="company-logo-row">
@@ -650,7 +650,6 @@
             <article class="help-article" id="helpArticle" aria-labelledby="aboutTitle"></article>
             <footer class="help-footer">
               <button type="button" class="help-back-button" data-close-modal>Back to calculator</button>
-              <p id="helpPageMeta" class="help-page-meta"></p>
               <div class="help-footer-nav">
                 <button type="button" id="helpPrevButton" class="help-nav-button">Back</button>
                 <button type="button" id="helpNextButton" class="help-nav-button">Next</button>

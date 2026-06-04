@@ -1,15 +1,15 @@
-const STORAGE_KEY = "inkson-costings-v1";
-const THEME_KEY = "inkson-theme-v1";
-const LAST_COSTING_KEY = "inkson-last-costing-v1";
-const ACCENT_KEY = "gcc-accent-v1";
+const STORAGE_KEY = "gcc-costings-v1";
+const THEME_KEY = "gcc-theme-v1";
+const LAST_COSTING_KEY = "gcc-last-costing-v1";
+const ACCENT_KEY = "gcc-accent-v2";
 const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.14";
+const APP_BUILD = "v2.15";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
-const DEFAULT_ACCENT = "#70a480";
+const DEFAULT_ACCENT = "#82b0df";
 const ACCENT_STATES = {
   "#ef4b9a": { tint: "rgba(239, 75, 154, 0.1)", hover: "#ef4b9a", bright: "#f16ead" },
   "#82b0df": { tint: "rgba(130, 176, 223, 0.1)", hover: "#6298cd", bright: "#82b0df" },
@@ -18,7 +18,6 @@ const ACCENT_STATES = {
   "#c4a35a": { tint: "rgba(196, 163, 90, 0.07)", hover: "#d6a946", bright: "#d6a946" },
   "#d6a946": { tint: "rgba(196, 163, 90, 0.07)", hover: "#d6a946", bright: "#d6a946" },
   "#a8b0ae": { tint: "rgba(168, 176, 174, 0.1)", hover: "#f4edda", bright: "#a8b0ae" },
-  "#1d1d1e": { tint: "rgba(244, 241, 233, 0.02)", hover: "#f4edda", bright: "#f4f1e9" },
 };
 const HELP_PAGES = [
   {
@@ -26,7 +25,7 @@ const HELP_PAGES = [
     body: `Cost Calculator User Guide
 Understanding the numbers behind garment pricing
 
-This guide explains the logic behind the Inkson Garment Cost Calculator. It is not a technical guide for using the interface. It explains what each section means, why the calculator asks for certain numbers, and how it reaches the final recommended retail price.
+This guide explains the logic behind the Garment Cost Calculator. It is not a technical guide for using the interface. It explains what each section means, why the calculator asks for certain numbers, and how it reaches the final recommended retail price.
 
 The calculator is designed to answer one commercial question:
 
@@ -182,7 +181,7 @@ This is called development recovery.
 
 Example:
 Pattern, sampling, grading, and fitting cost $1,200.
-Inkson produces 40 pants.
+The business produces 40 pants.
 
 Development recovery per unit:
 $1,200 / 40 = $30 per pant
@@ -409,13 +408,13 @@ Retail price: $600
 
 $420 / $600 = 70%
 
-Gross margin tells Inkson whether the garment has enough commercial room to support the business.
+Gross margin shows whether the garment has enough commercial room to support the business.
 
 A garment can sell well and still be weak if the margin is too low.`,
   },
   {
     title: "13. What wholesale price means",
-    body: `Wholesale price is the price a retailer or stockist would usually pay Inkson before selling the garment to the final customer.
+    body: `Wholesale price is the price a retailer or stockist would usually pay the business before selling the garment to the final customer.
 
 A simple industry rule is:
 
@@ -426,7 +425,7 @@ Example:
 Recommended retail price: $600
 Wholesale estimate: $300
 
-This means a boutique might buy the pant from Inkson for around $300 and sell it to the customer for around $600.
+This means a boutique might buy the pant from the business for around $300 and sell it to the customer for around $600.
 
 Why this matters:
 
@@ -434,7 +433,7 @@ Wholesale changes the economics completely.
 
 Selling direct-to-consumer at $600 is very different from selling wholesale at $300.
 
-The garment still costs the same to make, but the revenue received by Inkson is much lower.`,
+The garment still costs the same to make, but the revenue received by the business is much lower.`,
   },
   {
     title: "14. What Not Wholesale Viable means",
@@ -460,7 +459,7 @@ Total unit cost: $330
 Wholesale profit:
 $300 - $330 = -$30
 
-Inkson loses $30 every time it sells that garment wholesale.
+The business loses $30 every time it sells that garment wholesale.
 
 That is not wholesale viable.
 
@@ -491,7 +490,7 @@ This is why small production runs often look expensive. The garment is carrying 
 
 But producing too many units creates inventory risk.
 
-Inkson needs to balance:
+The business needs to balance:
 
 Lower cost per unit
 against
@@ -585,7 +584,7 @@ The retail target is too low.`,
     title: "Final principle",
     body: `The calculator exists to stop guessing.
 
-It helps Inkson move from atelier instinct into product business discipline.
+It helps move from atelier instinct into product business discipline.
 
 A beautiful garment still needs a working commercial structure.
 
@@ -750,7 +749,7 @@ function userDisplayName() {
   const profile = readUserProfile();
   const fullName = [metadata.first_name, metadata.last_name].filter(Boolean).join(" ").trim();
   const fromEmail = currentUser?.email ? currentUser.email.split("@")[0] : "";
-  return profile.displayName || metadata.name || metadata.full_name || fullName || fromEmail || "Jody Kahlon";
+  return profile.displayName || metadata.name || metadata.full_name || fullName || fromEmail || "User";
 }
 
 function userFirstName() {
@@ -764,7 +763,7 @@ function initialsForName(name) {
     .trim()
     .split(/\s+/)
     .filter(Boolean);
-  if (!parts.length) return "JK";
+  if (!parts.length) return "U";
   return parts
     .slice(0, 2)
     .map((part) => part[0])
@@ -786,7 +785,7 @@ function lastCostingStorageKey() {
 }
 
 function legacyMigrationKey() {
-  return currentUser ? `inkson-legacy-migrated:${currentUser.id}` : "";
+  return currentUser ? `gcc-legacy-migrated:${currentUser.id}` : "";
 }
 
 function showToast(message) {
@@ -1117,7 +1116,6 @@ function renderHelpPage(index) {
     button.classList.toggle("active", isActive);
     button.setAttribute("aria-current", isActive ? "page" : "false");
   });
-  setText("helpPageMeta", `Page ${currentHelpPage + 1} of ${HELP_PAGES.length}: ${page.title}`);
 }
 
 function populateHelpViewer() {
@@ -1560,7 +1558,7 @@ function updateCurrentCostingLabel() {
   const select = $("#savedCostings");
   const title = getCurrentCostingTitle();
 
-  document.title = `${title} - Inkson Garment Cost Calculator`;
+  document.title = `${title} - Garment Cost Calculator`;
 
   if (!select) {
     syncSavedCostingPicker();
@@ -1629,7 +1627,7 @@ function updateDisplay() {
   setText("pricingWarningText", statusText);
   if (wholesaleOutput) wholesaleOutput.className = calculations.wholesaleClass;
 
-  setText("compInksonRetail", formatMoney(calculations.retailPrice));
+  setText("compProposedRetail", formatMoney(calculations.retailPrice));
   setText("compLowest", formatMoney(competitor.lowest));
   setText("compHighest", formatMoney(competitor.highest));
   setText("compAverage", formatMoney(competitor.average));
@@ -1922,9 +1920,9 @@ function exportJson() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const safeName = (state.title || "inkson-costing").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const safeName = (state.title || "garment-costing").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   link.href = url;
-  link.download = `${safeName || "inkson-costing"}.json`;
+  link.download = `${safeName || "garment-costing"}.json`;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -1936,7 +1934,7 @@ function makeSummaryText() {
   const garment = $("#garmentName").value.trim() || "Untitled garment";
   const style = $("#styleCode").value.trim();
   return [
-    `Inkson costing summary`,
+    `Garment costing summary`,
     `Build: ${APP_BUILD}`,
     `Garment: ${garment}${style ? ` (${style})` : ""}`,
     `Production quantity: ${calculations.productionQuantity}`,
@@ -2093,7 +2091,7 @@ function handleSignedOut() {
   showAuthPanel("login");
   updateAccountDetails();
   setAuthMessage("");
-  document.title = "Inkson Garment Cost Calculator";
+  document.title = "Garment Cost Calculator";
 }
 
 async function handleLogin(event) {

@@ -15,10 +15,10 @@
   --neutral: #c4a35a;
   --bad: #c4533a;
   --blue: #82b0df;
-  --accent: #70a480;
-  --accent-tint: rgba(112, 164, 128, 0.1);
-  --accent-hover: #518e63;
-  --accent-bright: #70a480;
+  --accent: #82b0df;
+  --accent-tint: rgba(130, 176, 223, 0.1);
+  --accent-hover: #6298cd;
+  --accent-bright: #82b0df;
   --hit: #d6a946;
   --hit-hover: #d4ba80;
   --neutral-tint: rgba(196, 163, 90, 0.07);
@@ -1920,19 +1920,12 @@ input[type="number"] {
 
 .help-footer {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
   align-items: center;
   gap: 24px;
   max-width: 1014px;
   margin-top: 8px;
-}
-
-.help-page-meta {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.5;
 }
 
 .help-footer-nav {
@@ -2674,11 +2667,6 @@ input[type="number"] {
     bottom: 0;
     padding: 12px 0 0;
     background: var(--bg);
-  }
-
-  .help-page-meta {
-    order: -1;
-    font-size: 13px;
   }
 
   .help-footer-nav {
