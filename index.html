@@ -638,29 +638,26 @@
     <div class="modal-backdrop" id="aboutModal" hidden>
       <section class="about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
         <button type="button" class="modal-close-button" data-close-modal aria-label="Close information">×</button>
-        <div class="help-shell">
-          <header class="help-toolbar">
+        <aside class="help-sidebar" aria-label="Help topics">
+          <nav class="help-nav" id="helpNav"></nav>
+        </aside>
+        <main class="help-main">
+          <div class="help-content">
             <div class="brand-lockup modal-brand">
               <span class="brand-mark" aria-hidden="true"></span>
-              <h2 id="aboutTitle">Learn About GCC</h2>
+              <h2>Garment<br />Cost Calculator</h2>
             </div>
-            <div class="help-toolbar-actions">
-              <button type="button" id="helpPrevButton" class="help-nav-button">Previous</button>
-              <label class="help-page-picker" for="helpPageSelect">
-                <span>Page</span>
-                <select id="helpPageSelect" class="help-page-select" aria-label="Help pages"></select>
-              </label>
-              <button type="button" id="helpNextButton" class="help-nav-button">Next</button>
-            </div>
-          </header>
-          <div class="help-stage">
-            <img id="helpPageImage" class="help-page-image" src="" alt="" />
+            <article class="help-article" id="helpArticle" aria-labelledby="aboutTitle"></article>
+            <footer class="help-footer">
+              <button type="button" class="help-back-button" data-close-modal>Back to calculator</button>
+              <p id="helpPageMeta" class="help-page-meta"></p>
+              <div class="help-footer-nav">
+                <button type="button" id="helpPrevButton" class="help-nav-button">Back</button>
+                <button type="button" id="helpNextButton" class="help-nav-button">Next</button>
+              </div>
+            </footer>
           </div>
-          <footer class="help-footer">
-            <p id="helpPageMeta" class="help-page-meta"></p>
-            <button type="button" class="help-back-button" data-close-modal>Back to calculator</button>
-          </footer>
-        </div>
+        </main>
       </section>
     </div>
 

@@ -1795,82 +1795,120 @@ input[type="number"] {
 }
 
 .about-modal {
-  width: min(1380px, calc(100vw - 48px));
-  min-height: min(920px, calc(100vh - 48px));
-  padding: 24px;
-}
-
-.help-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 20px;
-  height: 100%;
-  min-height: min(872px, calc(100vh - 96px));
+  grid-template-columns: 266px minmax(0, 1fr);
+  width: min(1419px, calc(100vw - 48px));
+  height: min(1246px, calc(100vh - 48px));
+  min-height: 720px;
+  overflow: hidden;
+  padding: 0;
+  background: var(--bg);
 }
 
 .modal-brand h2 {
   margin: 0;
-  font-size: 28px;
-  line-height: 1;
-}
-
-.help-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  min-width: 0;
-  padding-right: 48px;
-}
-
-.help-toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.help-page-picker {
-  display: grid;
-  gap: 6px;
-  min-width: 320px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-.help-page-picker span {
-  color: var(--muted);
-}
-
-.help-page-select {
-  min-height: 44px;
-  border: 1px solid var(--button-border);
-  border-radius: 8px;
-  background: var(--surface);
   color: var(--text);
-  padding: 0 42px 0 16px;
+  font-size: 37px;
+  font-weight: 700;
+  line-height: 0.96;
+}
+
+.help-sidebar {
+  min-height: 0;
+  overflow-y: auto;
+  background: #1e2931;
+  padding: 32px 0 34px;
+}
+
+.help-nav {
+  display: grid;
+}
+
+.help-nav-item {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 58px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--button-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.help-nav-item:hover,
+.help-nav-item:focus-visible,
+.help-nav-item.active {
+  border-bottom-color: var(--neutral);
+  background: transparent;
+  color: var(--neutral);
+}
+
+.help-main {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.help-content {
+  display: grid;
+  align-content: start;
+  gap: 38px;
+  max-width: 782px;
+  min-height: 100%;
+  padding: 64px 0 46px 72px;
+}
+
+.help-article {
+  display: grid;
+  gap: 34px;
+}
+
+.help-article h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.32;
+}
+
+.help-copy {
+  display: grid;
+  gap: 24px;
+  max-width: 564px;
+}
+
+.help-copy p {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.85;
 }
 
 .help-nav-button,
 .help-back-button {
-  min-width: 124px;
-  border-color: var(--accent);
-  background: var(--accent-tint);
-  color: var(--accent);
+  min-width: 130px;
+  min-height: 44px;
+  border-color: var(--neutral);
+  background: var(--neutral-tint);
+  color: var(--neutral);
   font-size: 14px;
   font-weight: 500;
+  padding: 0 24px;
 }
 
 .help-nav-button:hover,
 .help-nav-button:focus-visible,
 .help-back-button:hover,
 .help-back-button:focus-visible {
-  border-color: var(--accent-hover);
+  border-color: var(--hit-hover);
   background: transparent;
-  color: var(--accent-hover);
+  color: var(--hit-hover);
 }
 
 .help-nav-button:disabled {
@@ -1880,31 +1918,27 @@ input[type="number"] {
   cursor: default;
 }
 
-.help-stage {
-  overflow: auto;
-  border-radius: 8px;
-  background: #151d27;
-}
-
-.help-page-image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .help-footer {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
+  max-width: 1014px;
+  margin-top: 8px;
 }
 
 .help-page-meta {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 300;
   line-height: 1.5;
+}
+
+.help-footer-nav {
+  display: flex;
+  gap: 8px;
+  justify-self: end;
 }
 
 @media (max-width: 700px) {
@@ -2548,37 +2582,83 @@ input[type="number"] {
   }
 
   .about-modal {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     width: 100%;
-    min-height: calc(100vh - 36px);
-    padding: 18px 16px 20px;
-  }
-
-  .help-shell {
-    grid-template-rows: auto auto auto;
+    height: calc(100vh - 36px);
     min-height: 0;
-    gap: 16px;
   }
 
-  .help-toolbar {
-    display: grid;
-    justify-items: stretch;
+  .help-sidebar {
+    max-height: 158px;
+    padding: 72px 0 0;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  .help-nav {
+    display: flex;
+    overflow-x: auto;
+    padding: 0 16px 16px;
+  }
+
+  .help-nav-item {
+    width: 210px;
+    min-width: 210px;
+    min-height: 46px;
+    border: 1px solid var(--button-border);
+    border-radius: 8px;
+    padding: 0 14px;
+  }
+
+  .help-nav-item + .help-nav-item {
+    margin-left: 8px;
+  }
+
+  .help-main {
+    min-height: 0;
+  }
+
+  .help-content {
+    gap: 26px;
+    max-width: none;
+    min-height: 0;
+    padding: 34px 16px 26px;
+  }
+
+  .modal-brand {
+    grid-column: auto;
+    justify-self: start;
+    order: 0;
     gap: 14px;
-    padding-right: 36px;
+    margin-top: 0;
   }
 
   .modal-brand h2 {
-    font-size: 24px;
+    font-size: 25px;
   }
 
-  .help-toolbar-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+  .modal-brand .brand-mark {
+    width: 42px;
+    height: 56px;
   }
 
-  .help-page-picker {
-    grid-column: 1 / -1;
-    min-width: 0;
+  .help-article {
+    gap: 22px;
+  }
+
+  .help-article h1 {
+    font-size: 28px;
+    line-height: 1.25;
+  }
+
+  .help-copy {
+    gap: 20px;
+    max-width: none;
+  }
+
+  .help-copy p {
+    font-size: 15px;
+    line-height: 1.72;
   }
 
   .help-nav-button,
@@ -2587,17 +2667,24 @@ input[type="number"] {
   }
 
   .help-footer {
-    display: grid;
+    grid-template-columns: 1fr;
     justify-items: stretch;
-  }
-
-  .help-stage {
-    overflow: visible;
-    background: transparent;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0 0;
+    background: var(--bg);
   }
 
   .help-page-meta {
+    order: -1;
     font-size: 13px;
+  }
+
+  .help-footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-self: stretch;
   }
 }
 

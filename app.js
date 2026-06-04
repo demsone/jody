@@ -6,7 +6,7 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.13";
+const APP_BUILD = "v2.14";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#70a480";
@@ -21,26 +21,580 @@ const ACCENT_STATES = {
   "#1d1d1e": { tint: "rgba(244, 241, 233, 0.02)", hover: "#f4edda", bright: "#f4f1e9" },
 };
 const HELP_PAGES = [
-  ["Intro", "assets/help/help-01-intro.jpg"],
-  ["1. The basic logic", "assets/help/help-02-basic-logic.jpg"],
-  ["2. The eight sections of the calculator", "assets/help/help-03-eight-sections.jpg"],
-  ["3. Section 1: Garment Details Setup", "assets/help/help-04-section-1-garment-details.jpg"],
-  ["4. Section 2: Direct Materials", "assets/help/help-05-section-2-direct-materials.jpg"],
-  ["5. Section 3: Development Costs", "assets/help/help-06-section-3-development-costs.jpg"],
-  ["6. Section 4: Labour", "assets/help/help-07-section-4-labour.jpg"],
-  ["7. Section 5: Overheads", "assets/help/help-08-section-5-overheads.jpg"],
-  ["8. Section 6: Selling Costs", "assets/help/help-09-section-6-selling-costs.jpg"],
-  ["9. Section 7: Pricing Output", "assets/help/help-10-section-7-pricing-output.jpg"],
-  ["10. How recommended retail price is calculated", "assets/help/help-11-recommended-retail-price.jpg"],
-  ["11. What gross profit means", "assets/help/help-12-gross-profit.jpg"],
-  ["12. What gross margin means", "assets/help/help-13-gross-margin.jpg"],
-  ["13. What wholesale price means", "assets/help/help-14-wholesale-price.jpg"],
-  ["14. What Not Wholesale Viable means", "assets/help/help-15-not-wholesale-viable.jpg"],
-  ["15. Why production quantity changes everything", "assets/help/help-16-production-quantity.jpg"],
-  ["16. Section 8: Competitor Comparison", "assets/help/help-17-section-8-competitor-comparison.jpg"],
-  ["17. Common costing mistakes", "assets/help/help-18-common-costing-mistakes.jpg"],
-  ["18. How you should use the calculator", "assets/help/help-19-how-to-use.jpg"],
-  ["Final principle", "assets/help/help-20-final-principle.jpg"],
+  {
+    title: "Intro",
+    body: `Cost Calculator User Guide
+Understanding the numbers behind garment pricing
+
+This guide explains the logic behind the Inkson Garment Cost Calculator. It is not a technical guide for using the interface. It explains what each section means, why the calculator asks for certain numbers, and how it reaches the final recommended retail price.
+
+The calculator is designed to answer one commercial question:
+
+Can I produce this garment, sell it at this price, and keep enough margin for the business to survive?`,
+  },
+  {
+    title: "1. The basic logic",
+    body: `A garment has two different numbers:
+
+1. What it costs to make.
+2. What it needs to sell for.
+
+These are not the same thing.
+
+If a garment costs $150 to produce, selling it for $180 does not mean the business is healthy. That $30 difference has to support business overheads, selling costs, future development, mistakes, returns, and profit.
+
+The calculator works by building the true unit cost first, then applying a target gross margin to calculate a recommended retail price.
+
+Simple version:
+
+Materials + development recovery + labour + overheads + selling costs = total unit cost
+
+Total unit cost + required margin = recommended retail price`,
+  },
+  {
+    title: "2. The eight sections of the calculator",
+    body: `The app is structured as an eight-part costing flow:
+
+1. Garment Details Setup
+2. Direct Materials
+3. Development Costs
+4. Labour
+5. Overheads
+6. Selling Costs
+7. Pricing Output
+8. Competitor Comparison
+
+Each section adds a different type of cost or commercial check. The key is not to mix them together. Fabric is not the same as labour. Labour is not the same as overhead. Competitor pricing is not the same as cost.`,
+  },
+  {
+    title: "3. Section 1: Garment Details Setup",
+    body: `This section sets the commercial assumptions for the costing.
+
+Main fields:
+Garment name
+The name of the garment being costed. Example: Baggy Flared Stylist Pant.
+
+Style code
+An internal reference code. Useful when costing multiple samples or versions.
+
+Product type
+The category of garment. Example: pant, jacket, skirt, dress.
+
+Production quantity
+The number of units expected in this production run.
+
+This is very important because some costs are spread across the number of garments being produced. A low production quantity makes each garment more expensive. A higher production quantity usually reduces the cost per unit.
+
+Target gross margin %
+The margin you want to keep after covering the unit cost of the garment.
+
+For premium direct-to-consumer fashion, this often needs to be high enough to cover the wider business, not just the sewing.
+
+GST included?
+This tells the calculator whether GST should be considered in the final retail logic.
+
+Production model
+This describes how the garment is being produced:
+
+Internal: made within the studio.
+Local maker: made by a local external manufacturer.
+Offshore: made by an overseas production partner.
+
+Pricing model
+This tells the calculator whether the garment is being assessed for direct-to-consumer only, or for both direct-to-consumer and wholesale.`,
+  },
+  {
+    title: "4. Section 2: Direct Materials",
+    body: `Direct materials are the physical things that go into the garment.
+
+Examples:
+Main fabric
+Lining
+Pocketing
+Fusing / interfacing
+Zip
+Buttons
+Hooks and bars
+Buckles
+D-rings
+Rivets
+Snaps
+Elastic
+Thread
+Labels
+Swing tags
+Packaging
+Garment bag
+Tissue or wrapping
+Satchel or box
+
+The calculator usually asks for:
+
+Unit cost
+How much one unit costs. Example: fabric cost per metre, one zip, one buckle.
+
+Quantity used
+How much is used in one garment.
+
+Waste percentage
+Extra allowance for cutting loss, mistakes, shrinkage, or unusable fabric.
+
+Total
+The calculated cost of that item for one garment.
+
+Example:
+
+Fabric costs $28 per metre.
+The pant uses 2.2 metres.
+Waste allowance is 10%.
+
+Fabric cost before waste:
+$28 x 2.2 = $61.60
+
+Waste allowance:
+10% of $61.60 = $6.16
+
+Total fabric cost:
+$67.76
+
+Why this matters:
+
+Direct materials are often the easiest costs to see, but they are not the whole garment cost. A common mistake is pricing from fabric and trims only. That underprices the garment.`,
+  },
+  {
+    title: "5. Section 3: Development Costs",
+    body: `Development costs are the costs required to create the garment before it can be produced repeatedly.
+
+Examples:
+Pattern making
+Sampling labour
+Fit sample cost
+Calico / toile fabric
+Sample trims
+Grading
+Marker making
+Technical documentation
+Other development costs
+
+These costs are not attached to only one garment. They are usually spread across a production run.
+
+This is called development recovery.
+
+Example:
+Pattern, sampling, grading, and fitting cost $1,200.
+Inkson produces 40 pants.
+
+Development recovery per unit:
+$1,200 / 40 = $30 per pant
+
+If you only produce 10 pants:
+$1,200 / 10 = $120 per pant
+
+Same development cost. Very different unit impact.
+
+Why this matters:
+
+Development is not free. If the business does not recover development cost, it quietly loses money even when the garment appears profitable.
+
+This section is especially important for you because the goal is to move from bespoke atelier work into repeatable product. Product development has to be treated as a commercial cost.`,
+  },
+  {
+    title: "6. Section 4: Labour",
+    body: `Labour is the time required to physically produce the garment.
+
+The calculator can use simple or advanced labour logic.
+
+Simple labour mode:
+
+Total labour hours per garment x hourly rate = labour cost
+
+Example:
+
+A pant takes 2.5 hours to produce.
+The labour rate is $45 per hour.
+
+2.5 x $45 = $112.50 labour cost
+
+Advanced labour mode:
+
+This breaks labour into stages:
+
+Cutting
+Sewing
+Pressing
+Finishing
+QC inspection
+Packing
+
+Example:
+
+Cutting: 0.4 hours
+Sewing: 1.8 hours
+Pressing: 0.3 hours
+Finishing: 0.2 hours
+QC: 0.1 hours
+Packing: 0.1 hours
+
+Total labour: 2.9 hours
+Hourly rate: $45
+
+2.9 x $45 = $130.50 labour cost
+
+Why this matters:
+
+Labour is often underestimated. A garment may look simple but still take significant time to cut, sew, press, inspect, and pack.
+
+For you, labour needs to be treated honestly. Otherwise the business falls back into atelier logic where time is absorbed instead of priced.`,
+  },
+  {
+    title: "7. Section 5: Overheads",
+    body: `Overheads are the costs of running the business or studio that are not tied to one specific garment, but still need to be paid.
+
+Examples:
+
+Electricity
+Rent or studio allocation
+Insurance
+Internet
+Phone
+Equipment depreciation
+Machine maintenance and repairs
+Petrol / transport
+Cleaning
+Software subscriptions
+Accounting / admin
+Other overheads
+
+The calculator spreads monthly overheads across monthly production capacity.
+
+Formula:
+
+Total monthly overheads / monthly production units = overhead cost per garment
+
+Example:
+
+Monthly overheads: $2,000
+Monthly production capacity: 50 garments
+
+$2,000 / 50 = $40 overhead per garment
+
+Why this matters:
+
+A garment does not only cost fabric, trims, and labour. The studio lights, machines, insurance, internet, and transport all support production.
+
+If overheads are ignored, the retail price may look attractive but the business may still lose money.`,
+  },
+  {
+    title: "8. Section 6: Selling Costs",
+    body: `Selling costs are costs triggered by selling the garment to the customer.
+
+Examples:
+
+Payment gateway percentage
+Ecommerce platform fee per unit
+Returns reserve percentage
+Defect / alteration reserve percentage
+Shipping subsidy per unit
+Customer packaging extras
+Other selling cost
+
+Some selling costs are fixed. Some are percentages of the retail price.
+
+Example fixed cost:
+
+Customer packaging extras: $6 per garment
+
+Example percentage cost:
+
+Payment gateway fee: 2.5% of retail price
+
+Why percentage selling costs are different:
+
+If the recommended retail price changes, percentage-based selling costs also change. The calculator solves these against the recommended retail price so the margin target remains accurate.
+
+Plain English:
+
+A higher retail price usually means higher card/payment fees. The calculator accounts for that rather than pretending the fee is fixed.
+
+Why this matters:
+
+Selling costs are easy to forget because they happen after the garment is made. But they still reduce margin.
+
+Returns are especially important in fashion. Even a small returns reserve helps prevent the business from assuming every sale will be perfect.`,
+  },
+  {
+    title: "9. Section 7: Pricing Output",
+    body: `This is where the calculator brings everything together.
+
+It shows:
+
+Direct materials total
+Development recovery per unit
+Labour cost per unit
+Overhead allocation per unit
+Selling cost estimate
+Total unit cost
+Recommended DTC retail price
+Gross profit per unit
+Gross margin %
+Wholesale price
+Wholesale profit per unit
+Wholesale viable?
+
+The most important output is the recommended DTC retail price.`,
+  },
+  {
+    title: "10. How recommended retail price is calculated",
+    body: `The calculator does not simply add a random markup.
+
+It uses the target gross margin.
+
+Formula:
+
+Recommended retail price = total unit cost / (1 - target margin)
+
+Example:
+
+Total unit cost: $180
+Target gross margin: 70%
+
+1 - 70% = 30%
+
+$180 / 0.30 = $600
+
+Recommended retail price: $600
+
+Why divide by 0.30?
+
+Because if your business wants to keep 70% margin, the unit cost must only represent 30% of the retail price.
+
+In the example:
+
+Retail price: $600
+Unit cost: $180
+Gross profit: $420
+Gross margin: 70%
+
+This is why retail price can feel high. The calculator is not only covering the garment. It is protecting the business model.`,
+  },
+  {
+    title: "11. What gross profit means",
+    body: `Gross profit is the money left after the unit cost is covered.
+
+Formula:
+
+Retail price - total unit cost = gross profit
+
+Example:
+
+Retail price: $600
+Total unit cost: $180
+
+$600 - $180 = $420 gross profit
+
+Gross profit is not the same as final business profit. It still needs to support broader business activity, future product development, unsold stock risk, marketing, admin, and tax obligations.`,
+  },
+  {
+    title: "12. What gross margin means",
+    body: `Gross margin shows gross profit as a percentage of the retail price.
+
+Formula:
+
+Gross profit / retail price = gross margin
+
+Example:
+
+Gross profit: $420
+Retail price: $600
+
+$420 / $600 = 70%
+
+Gross margin tells Inkson whether the garment has enough commercial room to support the business.
+
+A garment can sell well and still be weak if the margin is too low.`,
+  },
+  {
+    title: "13. What wholesale price means",
+    body: `Wholesale price is the price a retailer or stockist would usually pay Inkson before selling the garment to the final customer.
+
+A simple industry rule is:
+
+Wholesale price ~= retail price / 2
+
+Example:
+
+Recommended retail price: $600
+Wholesale estimate: $300
+
+This means a boutique might buy the pant from Inkson for around $300 and sell it to the customer for around $600.
+
+Why this matters:
+
+Wholesale changes the economics completely.
+
+Selling direct-to-consumer at $600 is very different from selling wholesale at $300.
+
+The garment still costs the same to make, but the revenue received by Inkson is much lower.`,
+  },
+  {
+    title: "14. What Not Wholesale Viable means",
+    body: `"Not Wholesale Viable" means the garment does not leave enough profit when sold at the estimated wholesale price.
+
+Example:
+
+Recommended retail price: $600
+Estimated wholesale price: $300
+Total unit cost: $260
+
+Wholesale profit:
+$300 - $260 = $40
+
+That may technically be positive, but it is very weak.
+
+Worse example:
+
+Recommended retail price: $600
+Estimated wholesale price: $300
+Total unit cost: $330
+
+Wholesale profit:
+$300 - $330 = -$30
+
+Inkson loses $30 every time it sells that garment wholesale.
+
+That is not wholesale viable.
+
+Plain English:
+
+The garment might work as a direct-to-consumer product, but not as a wholesale product.
+
+This does not mean the garment is bad. It means wholesale is the wrong channel unless the cost is reduced, the retail price increases, or the wholesale terms change.`,
+  },
+  {
+    title: "15. Why production quantity changes everything",
+    body: `Quantity changes the result because some costs are spread across units.
+
+Development cost example:
+
+Development cost: $1,200
+
+If producing 10 units:
+$1,200 / 10 = $120 per garment
+
+If producing 40 units:
+$1,200 / 40 = $30 per garment
+
+If producing 100 units:
+$1,200 / 100 = $12 per garment
+
+This is why small production runs often look expensive. The garment is carrying a bigger share of the development burden.
+
+But producing too many units creates inventory risk.
+
+Inkson needs to balance:
+
+Lower cost per unit
+against
+Risk of unsold stock
+
+The calculator helps show that trade-off.`,
+  },
+  {
+    title: "16. Section 8: Competitor Comparison",
+    body: `Competitor comparison is a market check, not a costing method.
+
+It helps compare your proposed retail price against similar products from other brands or local designers.
+
+The calculator can show:
+
+Your proposed retail
+Lowest competitor price
+Highest competitor price
+Average competitor price
+Market position
+
+Important:
+
+Competitor prices do not tell you what the pant costs to make.
+
+Competitors may have:
+
+Cheaper offshore production
+Higher production volume
+Different fabric costs
+Different rent structures
+Different margin requirements
+Different discount strategies
+Different brand positioning
+
+The competitor comparison should answer:
+
+Does your proposed retail price sit in a believable market range?
+
+It should not answer:
+
+What should you blindly charge?`,
+  },
+  {
+    title: "17. Common costing mistakes",
+    body: `Avoid these mistakes:
+
+1. Pricing from fabric and trims only.
+2. Forgetting labour time.
+3. Treating your time as free.
+4. Ignoring overheads.
+5. Forgetting development recovery.
+6. Forgetting payment fees and selling costs.
+7. Assuming wholesale will work automatically.
+8. Copying competitor pricing without knowing their cost base.
+9. Producing too many units to reduce cost, then getting stuck with stock.
+10. Setting price emotionally instead of commercially.`,
+  },
+  {
+    title: "18. How you should use the calculator",
+    body: `Use the calculator to test commercial feasibility before committing to production.
+
+For each garment, use it to answer:
+
+What does this really cost per unit?
+What retail price does it require?
+Can the market support that price?
+Can this work direct-to-consumer?
+Can this work wholesale?
+What production quantity makes sense?
+Where is the cost problem?
+
+The calculator should support decision-making, not create paralysis.
+
+If the price comes out too high, the next question is not "is the calculator wrong?"
+
+The next question is:
+
+Which input is causing the problem?
+
+Possible answers:
+
+Fabric is too expensive.
+Labour is too high.
+Development cost is being spread over too few units.
+Overheads are too heavy.
+Wholesale is the wrong channel.
+The retail target is too low.`,
+  },
+  {
+    title: "Final principle",
+    body: `The calculator exists to stop guessing.
+
+It helps Inkson move from atelier instinct into product business discipline.
+
+A beautiful garment still needs a working commercial structure.
+
+If the numbers do not work, the business plan needs adjustment before production begins.
+
+That is not failure.
+
+That is exactly what the calculator is for.`,
+  },
 ];
 
 const defaultMaterials = [
@@ -525,30 +1079,52 @@ function closeOpenModals() {
   $$(".modal-backdrop").forEach(closeModal);
 }
 
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function formatHelpBody(body) {
+  return body
+    .trim()
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${escapeHTML(paragraph).replaceAll("\n", "<br />")}</p>`)
+    .join("");
+}
+
 function renderHelpPage(index) {
   if (!HELP_PAGES.length) return;
   currentHelpPage = Math.max(0, Math.min(index, HELP_PAGES.length - 1));
-  const [title, src] = HELP_PAGES[currentHelpPage];
-  const image = $("#helpPageImage");
-  const select = $("#helpPageSelect");
+  const page = HELP_PAGES[currentHelpPage];
+  const article = $("#helpArticle");
   const prev = $("#helpPrevButton");
   const next = $("#helpNextButton");
 
-  if (image) {
-    image.src = src;
-    image.alt = title;
+  if (article) {
+    article.innerHTML = `
+      <h1 id="aboutTitle">${escapeHTML(page.title)}</h1>
+      <div class="help-copy">${formatHelpBody(page.body)}</div>
+    `;
+    article.scrollTop = 0;
   }
-  if (select) select.value = String(currentHelpPage);
   if (prev) prev.disabled = currentHelpPage === 0;
   if (next) next.disabled = currentHelpPage === HELP_PAGES.length - 1;
-  setText("helpPageMeta", `Page ${currentHelpPage + 1} of ${HELP_PAGES.length}: ${title}`);
+  $$(".help-nav-item").forEach((button) => {
+    const isActive = Number(button.dataset.helpPage) === currentHelpPage;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-current", isActive ? "page" : "false");
+  });
+  setText("helpPageMeta", `Page ${currentHelpPage + 1} of ${HELP_PAGES.length}: ${page.title}`);
 }
 
 function populateHelpViewer() {
-  const select = $("#helpPageSelect");
-  if (!select) return;
-  select.innerHTML = HELP_PAGES.map(
-    ([title], index) => `<option value="${index}">${title}</option>`
+  const nav = $("#helpNav");
+  if (!nav) return;
+  nav.innerHTML = HELP_PAGES.map(
+    (page, index) => `<button type="button" class="help-nav-item" data-help-page="${index}">${escapeHTML(page.title)}</button>`
   ).join("");
   renderHelpPage(currentHelpPage);
 }
@@ -1736,8 +2312,10 @@ function bindEvents() {
     renderHelpPage(currentHelpPage);
     openModal("aboutModal");
   });
-  $("#helpPageSelect")?.addEventListener("change", (event) => {
-    renderHelpPage(Number(event.target.value));
+  $("#helpNav")?.addEventListener("click", (event) => {
+    const button = event.target.closest(".help-nav-item");
+    if (!button) return;
+    renderHelpPage(Number(button.dataset.helpPage));
   });
   $("#helpPrevButton")?.addEventListener("click", () => renderHelpPage(currentHelpPage - 1));
   $("#helpNextButton")?.addEventListener("click", () => renderHelpPage(currentHelpPage + 1));
