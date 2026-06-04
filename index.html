@@ -26,11 +26,11 @@
           <form id="loginForm" class="auth-form">
             <div class="field">
               <label for="loginEmail">Email</label>
-              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
+              <input id="loginEmail" name="loginEmail" type="email" autocomplete="email" placeholder="Email" required />
             </div>
             <div class="field">
               <label for="loginPassword">Password</label>
-              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" placeholder="In^5Rrkj" required />
+              <input id="loginPassword" name="loginPassword" type="password" autocomplete="current-password" placeholder="Password" required />
             </div>
             <button type="submit" class="auth-primary-button">Login</button>
           </form>
@@ -47,27 +47,27 @@
             <div class="auth-grid">
               <div class="field signup-first-name-field">
                 <label for="signupFirstName">First name</label>
-                <input id="signupFirstName" name="signupFirstName" type="text" autocomplete="given-name" placeholder="Jody" />
+                <input id="signupFirstName" name="signupFirstName" type="text" autocomplete="given-name" placeholder="First name" />
               </div>
               <div class="field signup-last-name-field">
                 <label for="signupLastName">Last name</label>
-                <input id="signupLastName" name="signupLastName" type="text" autocomplete="family-name" placeholder="Kahlon" />
+                <input id="signupLastName" name="signupLastName" type="text" autocomplete="family-name" placeholder="Last name" />
               </div>
               <div class="field signup-business-field">
                 <label for="signupBusinessName"><span class="desktop-label">Business name</span><span class="mobile-label">Display name</span></label>
-                <input id="signupBusinessName" name="signupBusinessName" type="text" autocomplete="organization" placeholder="Jody Kahlon" />
+                <input id="signupBusinessName" name="signupBusinessName" type="text" autocomplete="organization" placeholder="Business name" />
               </div>
               <div class="field">
                 <label for="signupEmail">Email</label>
-                <input id="signupEmail" name="signupEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
+                <input id="signupEmail" name="signupEmail" type="email" autocomplete="email" placeholder="Email" required />
               </div>
               <div class="field">
                 <label for="signupPassword">Password</label>
-                <input id="signupPassword" name="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="In^5Rrkj" required />
+                <input id="signupPassword" name="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Password" required />
               </div>
               <div class="field">
                 <label for="signupConfirmPassword">Confirm password</label>
-                <input id="signupConfirmPassword" name="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="In^5Rrkj" required />
+                <input id="signupConfirmPassword" name="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Confirm password" required />
               </div>
             </div>
             <div class="auth-action-row">
@@ -83,7 +83,7 @@
           <form id="forgotPasswordForm" class="auth-form">
             <div class="field">
               <label for="resetEmail">Email</label>
-              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" placeholder="Me@Home.Com" required />
+              <input id="resetEmail" name="resetEmail" type="email" autocomplete="email" placeholder="Email" required />
             </div>
             <button type="submit" class="auth-primary-button">Password Reset</button>
           </form>
@@ -98,11 +98,11 @@
           <form id="updatePasswordForm" class="auth-form">
             <div class="field">
               <label for="newPassword">New password</label>
-              <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" required />
+              <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" placeholder="New password" required />
             </div>
             <div class="field">
               <label for="confirmNewPassword">Confirm new password</label>
-              <input id="confirmNewPassword" name="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" required />
+              <input id="confirmNewPassword" name="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Confirm new password" required />
             </div>
             <button type="submit" class="auth-primary-button">Update password</button>
           </form>
@@ -638,14 +638,29 @@
     <div class="modal-backdrop" id="aboutModal" hidden>
       <section class="about-modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
         <button type="button" class="modal-close-button" data-close-modal aria-label="Close information">×</button>
-        <div class="brand-lockup modal-brand">
-          <span class="brand-mark" aria-hidden="true"></span>
-          <h2 id="aboutTitle">Garment<br />Cost Calculator</h2>
+        <div class="help-shell">
+          <header class="help-toolbar">
+            <div class="brand-lockup modal-brand">
+              <span class="brand-mark" aria-hidden="true"></span>
+              <h2 id="aboutTitle">Learn About GCC</h2>
+            </div>
+            <div class="help-toolbar-actions">
+              <button type="button" id="helpPrevButton" class="help-nav-button">Previous</button>
+              <label class="help-page-picker" for="helpPageSelect">
+                <span>Page</span>
+                <select id="helpPageSelect" class="help-page-select" aria-label="Help pages"></select>
+              </label>
+              <button type="button" id="helpNextButton" class="help-nav-button">Next</button>
+            </div>
+          </header>
+          <div class="help-stage">
+            <img id="helpPageImage" class="help-page-image" src="" alt="" />
+          </div>
+          <footer class="help-footer">
+            <p id="helpPageMeta" class="help-page-meta"></p>
+            <button type="button" class="help-back-button" data-close-modal>Back to calculator</button>
+          </footer>
         </div>
-        <p>
-          This account version calculates garment unit cost, retail price, margin, wholesale viability, and market position.
-          Saved costings can sync to Supabase once the database table is installed.
-        </p>
       </section>
     </div>
 

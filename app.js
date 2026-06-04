@@ -6,7 +6,7 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.12";
+const APP_BUILD = "v2.13";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#70a480";
@@ -20,6 +20,28 @@ const ACCENT_STATES = {
   "#a8b0ae": { tint: "rgba(168, 176, 174, 0.1)", hover: "#f4edda", bright: "#a8b0ae" },
   "#1d1d1e": { tint: "rgba(244, 241, 233, 0.02)", hover: "#f4edda", bright: "#f4f1e9" },
 };
+const HELP_PAGES = [
+  ["Intro", "assets/help/help-01-intro.jpg"],
+  ["1. The basic logic", "assets/help/help-02-basic-logic.jpg"],
+  ["2. The eight sections of the calculator", "assets/help/help-03-eight-sections.jpg"],
+  ["3. Section 1: Garment Details Setup", "assets/help/help-04-section-1-garment-details.jpg"],
+  ["4. Section 2: Direct Materials", "assets/help/help-05-section-2-direct-materials.jpg"],
+  ["5. Section 3: Development Costs", "assets/help/help-06-section-3-development-costs.jpg"],
+  ["6. Section 4: Labour", "assets/help/help-07-section-4-labour.jpg"],
+  ["7. Section 5: Overheads", "assets/help/help-08-section-5-overheads.jpg"],
+  ["8. Section 6: Selling Costs", "assets/help/help-09-section-6-selling-costs.jpg"],
+  ["9. Section 7: Pricing Output", "assets/help/help-10-section-7-pricing-output.jpg"],
+  ["10. How recommended retail price is calculated", "assets/help/help-11-recommended-retail-price.jpg"],
+  ["11. What gross profit means", "assets/help/help-12-gross-profit.jpg"],
+  ["12. What gross margin means", "assets/help/help-13-gross-margin.jpg"],
+  ["13. What wholesale price means", "assets/help/help-14-wholesale-price.jpg"],
+  ["14. What Not Wholesale Viable means", "assets/help/help-15-not-wholesale-viable.jpg"],
+  ["15. Why production quantity changes everything", "assets/help/help-16-production-quantity.jpg"],
+  ["16. Section 8: Competitor Comparison", "assets/help/help-17-section-8-competitor-comparison.jpg"],
+  ["17. Common costing mistakes", "assets/help/help-18-common-costing-mistakes.jpg"],
+  ["18. How you should use the calculator", "assets/help/help-19-how-to-use.jpg"],
+  ["Final principle", "assets/help/help-20-final-principle.jpg"],
+];
 
 const defaultMaterials = [
   "Main fabric",
@@ -82,6 +104,7 @@ let selectedAccent = DEFAULT_ACCENT;
 let supabaseClient = null;
 let currentUser = null;
 let cloudReady = false;
+let currentHelpPage = 0;
 
 const money = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -474,6 +497,13 @@ function updateGreeting() {
   setText("greetingText", `Good ${period}, ${userFirstName()}!`);
 }
 
+function syncResponsivePlaceholders() {
+  const signupBusinessName = $("#signupBusinessName");
+  if (signupBusinessName) {
+    signupBusinessName.placeholder = window.innerWidth <= 700 ? "Display name" : "Business name";
+  }
+}
+
 function openModal(id) {
   const modal = $(`#${id}`);
   if (!modal) return;
@@ -493,6 +523,34 @@ function closeModal(modal) {
 
 function closeOpenModals() {
   $$(".modal-backdrop").forEach(closeModal);
+}
+
+function renderHelpPage(index) {
+  if (!HELP_PAGES.length) return;
+  currentHelpPage = Math.max(0, Math.min(index, HELP_PAGES.length - 1));
+  const [title, src] = HELP_PAGES[currentHelpPage];
+  const image = $("#helpPageImage");
+  const select = $("#helpPageSelect");
+  const prev = $("#helpPrevButton");
+  const next = $("#helpNextButton");
+
+  if (image) {
+    image.src = src;
+    image.alt = title;
+  }
+  if (select) select.value = String(currentHelpPage);
+  if (prev) prev.disabled = currentHelpPage === 0;
+  if (next) next.disabled = currentHelpPage === HELP_PAGES.length - 1;
+  setText("helpPageMeta", `Page ${currentHelpPage + 1} of ${HELP_PAGES.length}: ${title}`);
+}
+
+function populateHelpViewer() {
+  const select = $("#helpPageSelect");
+  if (!select) return;
+  select.innerHTML = HELP_PAGES.map(
+    ([title], index) => `<option value="${index}">${title}</option>`
+  ).join("");
+  renderHelpPage(currentHelpPage);
 }
 
 function switchSettingsTab(tabName) {
@@ -1674,7 +1732,15 @@ function bindEvents() {
     updateAccountDetails();
     openModal("settingsModal");
   });
-  $("#aboutButton")?.addEventListener("click", () => openModal("aboutModal"));
+  $("#aboutButton")?.addEventListener("click", () => {
+    renderHelpPage(currentHelpPage);
+    openModal("aboutModal");
+  });
+  $("#helpPageSelect")?.addEventListener("change", (event) => {
+    renderHelpPage(Number(event.target.value));
+  });
+  $("#helpPrevButton")?.addEventListener("click", () => renderHelpPage(currentHelpPage - 1));
+  $("#helpNextButton")?.addEventListener("click", () => renderHelpPage(currentHelpPage + 1));
   $$("[data-close-modal]").forEach((button) => {
     button.addEventListener("click", () => closeModal(button.closest(".modal-backdrop")));
   });
@@ -1739,10 +1805,18 @@ function bindEvents() {
     if (event.key === "Escape") {
       setSavedCostingMenuOpen(false);
       closeOpenModals();
+      return;
+    }
+    if ($("#aboutModal")?.hidden) return;
+    if (event.key === "ArrowLeft") {
+      renderHelpPage(currentHelpPage - 1);
+    } else if (event.key === "ArrowRight") {
+      renderHelpPage(currentHelpPage + 1);
     }
   });
 
   window.addEventListener("resize", syncSavedCostingPicker);
+  window.addEventListener("resize", syncResponsivePlaceholders);
 
   $("#savedCostings").addEventListener("change", (event) => {
     handleSavedCostingSelection(event.target.value);
@@ -1773,7 +1847,9 @@ function loadInitialCosting() {
 
 createStaticFields();
 loadDefaultMaterials();
+populateHelpViewer();
 bindEvents();
+syncResponsivePlaceholders();
 updateGreeting();
 applyAccent(readAccent());
 applyTheme(document.documentElement.dataset.theme);
