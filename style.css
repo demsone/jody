@@ -1405,6 +1405,10 @@ input[type="number"] {
   gap: 8px;
 }
 
+.commercial-action-icon {
+  display: none;
+}
+
 #backToStartButton {
   width: auto;
   min-width: 98px;
@@ -2337,6 +2341,10 @@ input[type="number"] {
   }
 
   .cost-table tr {
+    display: grid;
+    grid-template-columns: 149px 139px;
+    gap: 16px 10px;
+    justify-content: start;
     margin: 8px 0;
     padding: 20px;
     border-radius: 8px;
@@ -2361,29 +2369,46 @@ input[type="number"] {
     font-family: var(--font-main);
     font-size: 13px;
     font-weight: 900;
+    line-height: 16px;
     letter-spacing: 0.4px;
     text-transform: uppercase;
   }
 
   .cost-table td + td {
-    margin-top: 16px;
+    margin-top: 0;
+  }
+
+  .cost-table input,
+  .cost-table input.material-unit-cost,
+  .cost-table input.material-wastage {
+    height: 44px;
+    min-height: 44px;
+    border-radius: 2px;
+    padding: 8px 13px;
+    text-align: left;
   }
 
   .cost-table td[data-label="Unit cost"],
   .cost-table td[data-label="Qty"],
   .cost-table td[data-label="Waste %"] {
-    display: inline-block;
-    width: calc(50% - 8px);
-    vertical-align: top;
+    display: block;
+    width: auto;
+  }
+
+  .cost-table td[data-label="Item"],
+  .cost-table .row-total-cell,
+  .cost-table .material-actions {
+    grid-column: 1 / -1;
   }
 
   .cost-table td[data-label="Qty"] {
-    margin-left: 12px;
+    grid-column: 2;
+    margin-left: 0;
   }
 
   .cost-table td[data-label="Waste %"] {
-    display: block;
-    width: 50%;
+    grid-column: 1;
+    width: auto;
     margin-left: 0;
   }
 
@@ -2391,8 +2416,9 @@ input[type="number"] {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    margin-top: 36px;
-    padding-bottom: 20px;
+    height: 62px;
+    margin-top: 0;
+    padding: 0;
     border-bottom: 1px solid var(--border-strong);
   }
 
@@ -2414,10 +2440,15 @@ input[type="number"] {
     display: none !important;
   }
 
+  .cost-table .material-actions {
+    padding: 0;
+  }
+
   .material-action-buttons {
     justify-content: center;
     gap: 28px;
-    margin-top: 18px;
+    height: 22px;
+    margin-top: 0;
   }
 
   .competitor-table {
@@ -2442,9 +2473,15 @@ input[type="number"] {
   }
 
   .single-selection .utility-button {
-    order: 0;
+    order: -1;
     flex-basis: 100%;
-    margin: 0 auto 16px;
+    margin: 0 auto 12px;
+  }
+
+  .wizard-actions.single-selection {
+    height: 172px;
+    min-height: 172px;
+    padding: 31px 16px 32px;
   }
 
   .pricing-summary {
@@ -2487,18 +2524,51 @@ input[type="number"] {
   }
 
   .final-actions {
-    display: grid;
-    gap: 22px;
-  }
-
-  .nav-actions,
-  .commercial-actions {
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
-    flex-wrap: wrap;
+    gap: 12px;
+    height: 108px;
+    min-height: 108px;
+    padding: 31px 16px 32px;
   }
 
-  .commercial-actions .utility-button {
-    width: 100%;
+  .final-actions .nav-actions,
+  .final-actions .commercial-actions {
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .final-actions #backToStartButton {
+    display: none;
+  }
+
+  .final-actions .commercial-actions .utility-button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .final-actions .commercial-actions .utility-button span {
+    display: none;
+  }
+
+  .final-actions .commercial-action-icon {
+    display: block;
+    width: 20px;
+    max-width: 20px;
+    height: 20px;
+    max-height: 24px;
+  }
+
+  .final-actions #exportJsonButton .commercial-action-icon {
+    height: 24px;
   }
 
   .modal-backdrop {
