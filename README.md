@@ -2,7 +2,7 @@
 
 Static mobile-first garment costing calculator.
 
-Current build: `v2.16`
+Current build: `v2.17`
 
 ## Files
 

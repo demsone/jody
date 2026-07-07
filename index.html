@@ -160,6 +160,7 @@
             <strong id="summaryRetail">$0.00</strong>
             <img id="summaryStatusIcon" src="assets/icons/info.svg" alt="" />
             <small id="summaryStatus">Needs inputs</small>
+            <div class="delta-chip" id="deltaChipSummary" role="status" aria-live="polite" hidden></div>
           </article>
         </section>
 
@@ -227,10 +228,13 @@
             <div class="field">
               <label for="productionQuantity">Production Quantity</label>
               <input id="productionQuantity" name="productionQuantity" type="number" min="1" step="1" value="50" inputmode="decimal" />
+              <p class="field-hint" id="quantityHelper">One-off development costs get shared across this many garments.</p>
             </div>
             <div class="field">
               <label for="targetMargin">Target Gross Margin %</label>
               <input id="targetMargin" name="targetMargin" type="number" min="0" max="95" step="0.1" value="70" inputmode="decimal" />
+              <p class="field-hint">Margin is not markup — 70% margin means costs make up only 30% of the price.</p>
+              <p class="field-warning" id="marginWarning" hidden></p>
             </div>
             <fieldset class="field radio-field">
               <legend>GST Included?</legend>
@@ -254,6 +258,10 @@
                 <option value="DTC + wholesale">DTC + wholesale</option>
               </select>
             </div>
+          </div>
+          <div class="multiplier-banner is-ok" id="multiplierBannerSetup" role="status" aria-live="polite">
+            <img id="multiplierBannerSetupIcon" src="assets/icons/info.svg" alt="" />
+            <span id="multiplierBannerSetupText" class="text-good">At these settings, every $1 of cost adds $3.93 to your retail price.</span>
           </div>
           <div class="wizard-actions">
             <button type="button" class="back-step">Back</button>
@@ -509,7 +517,18 @@
               <img id="pricingWarningIcon" src="assets/icons/info.svg" alt="" />
               <span id="pricingWarningText">Needs inputs</span>
             </p>
+            <div class="delta-chip" id="deltaChipFinal" role="status" aria-live="polite" hidden></div>
           </section>
+          <div class="multiplier-banner is-ok" id="multiplierBannerFinal" role="status" aria-live="polite">
+            <img id="multiplierBannerFinalIcon" src="assets/icons/info.svg" alt="" />
+            <span id="multiplierBannerFinalText" class="text-good">At these settings, every $1 of cost adds $3.93 to your retail price.</span>
+          </div>
+          <details class="price-breakdown" id="priceBreakdown">
+            <summary>Where your price comes from</summary>
+            <div class="breakdown-bar" id="breakdownBar" aria-hidden="true"></div>
+            <div class="breakdown-rows" id="breakdownRows"></div>
+            <p class="breakdown-note" id="breakdownNote" hidden>Add your costs to see where the price comes from.</p>
+          </details>
           <div class="output-grid">
             <section class="output-section">
               <h2>Production Costs</h2>

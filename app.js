@@ -6,7 +6,7 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.16";
+const APP_BUILD = "v2.17";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#82b0df";
@@ -658,6 +658,11 @@ let supabaseClient = null;
 let currentUser = null;
 let cloudReady = false;
 let currentHelpPage = 0;
+let deltaBaselineRetail = null;
+let deltaEditedField = null;
+let deltaFieldStartValue = null;
+let deltaTimer = 0;
+let deltaHideTimer = 0;
 
 const money = new Intl.NumberFormat("en-AU", {
   style: "currency",
@@ -1242,7 +1247,7 @@ function createMaterialRow(material = {}) {
     <td data-label="Unit cost"><input class="material-unit-cost" type="number" min="0" step="0.01" value="${material.unitCost || 0}" inputmode="decimal" aria-label="Unit cost" /></td>
     <td data-label="Qty"><input class="material-quantity" type="number" min="0" step="0.01" value="${material.quantity || 0}" inputmode="decimal" aria-label="Quantity used" /></td>
     <td data-label="Waste %"><input class="material-wastage" type="number" min="0" step="0.1" value="${material.wastage || 0}" inputmode="decimal" aria-label="Wastage percent" /></td>
-    <td class="row-total-cell" data-label="Total"><span class="row-total">$0.00</span></td>
+    <td class="row-total-cell" data-label="Total"><span class="row-total">$0.00</span><span class="row-waste-note" aria-hidden="true"></span></td>
     <td class="material-actions">
       <div class="material-action-buttons">
         <button class="row-icon reset-row" type="button" aria-label="Reset material row" title="Reset row">
@@ -1283,10 +1288,19 @@ function collectMaterials() {
 function calculateMaterials() {
   let total = 0;
   collectMaterials().forEach((material, index) => {
-    const rowTotal = material.unitCost * material.quantity * (1 + material.wastage / 100);
+    const beforeWaste = material.unitCost * material.quantity;
+    const rowTotal = beforeWaste * (1 + material.wastage / 100);
+    const wasteCost = rowTotal - beforeWaste;
     total += rowTotal;
     const row = $$("#materialsTable tbody tr")[index];
-    $(".row-total", row).textContent = formatMoney(rowTotal);
+    const totalCell = $(".row-total", row);
+    totalCell.textContent = formatMoney(rowTotal);
+    totalCell.title = wasteCost > 0 ? `Includes ${formatMoney(wasteCost)} for waste` : "";
+    const wasteNote = $(".row-waste-note", row);
+    if (wasteNote) {
+      wasteNote.textContent = wasteCost > 0 ? `includes ${formatMoney(wasteCost)} for waste` : "";
+      wasteNote.classList.toggle("waste-heavy", wasteCost > 0 && material.wastage > 20);
+    }
   });
   return total;
 }
@@ -1356,6 +1370,7 @@ function calculatePricing() {
 
   const baseCost = materials + development.perUnit + labour.total + overhead.perUnit + fixedSelling;
   const denominator = 1 - targetMargin - sellingPercent * gstMultiplier;
+  const multiplier = denominator > 0 ? gstMultiplier / denominator : 0;
   const netRetailPrice = denominator > 0 ? baseCost / denominator : 0;
   const retailPrice = netRetailPrice * gstMultiplier;
   const variableSelling = retailPrice * sellingPercent;
@@ -1417,6 +1432,7 @@ function calculatePricing() {
     warning,
     warningClass,
     denominator,
+    multiplier,
   };
 }
 
@@ -1580,6 +1596,274 @@ function updateCurrentCostingLabel() {
   syncSavedCostingPicker();
 }
 
+const MULTIPLIER_CAUTION = 5;
+const MULTIPLIER_DANGER = 10;
+const BROKEN_SETTINGS_MESSAGE =
+  "Your margin + fees are set too high — the price can't be calculated. Lower the Target Margin.";
+
+function multiplierState(result) {
+  if (!result || result.denominator <= 0) return "broken";
+  if (result.multiplier > MULTIPLIER_DANGER) return "danger";
+  if (result.multiplier > MULTIPLIER_CAUTION) return "caution";
+  return "ok";
+}
+
+function multiplierTextClass(state) {
+  if (state === "ok") return "text-good";
+  if (state === "caution") return "text-warn";
+  return "text-bad";
+}
+
+function updateMultiplierBanner(result) {
+  const state = multiplierState(result);
+  const message =
+    state === "broken"
+      ? BROKEN_SETTINGS_MESSAGE
+      : `At these settings, every $1 of cost adds ${formatMoney(result.multiplier)} to your retail price.`;
+  ["multiplierBannerSetup", "multiplierBannerFinal"].forEach((id) => {
+    const banner = $(`#${id}`);
+    if (!banner) return;
+    banner.className = `multiplier-banner is-${state}`;
+    const text = $(`#${id}Text`);
+    if (text) {
+      text.textContent = message;
+      text.className = multiplierTextClass(state);
+    }
+    const icon = $(`#${id}Icon`);
+    if (icon) icon.src = state === "ok" ? "assets/icons/info.svg" : "assets/icons/warning.svg";
+  });
+}
+
+function updateMarginWarning(result) {
+  const warning = $("#marginWarning");
+  const field = $("#targetMargin");
+  if (!warning || !field) return;
+  const state = multiplierState(result);
+  let message = "";
+  if (state === "broken") {
+    message = BROKEN_SETTINGS_MESSAGE;
+  } else if (state === "danger") {
+    message = `These settings multiply every cost by more than 10 — every $1 of cost adds ${formatMoney(result.multiplier)} to your retail price. Most fashion brands target 55–75% margin.`;
+  } else if (state === "caution") {
+    message = `Careful: every $1 of cost now adds ${formatMoney(result.multiplier)} to your retail price. Most fashion brands target 55–75% margin.`;
+  }
+  warning.textContent = message;
+  warning.hidden = !message;
+  warning.classList.toggle("is-danger", state === "danger" || state === "broken");
+  warning.classList.toggle("is-caution", state === "caution");
+  field.classList.toggle("input-danger", state === "danger" || state === "broken");
+  field.classList.toggle("input-caution", state === "caution");
+}
+
+function updateQuantityHelper(result) {
+  const helper = $("#quantityHelper");
+  if (!helper) return;
+  if (result.development.total > 0) {
+    helper.textContent = `Your ${formatMoney(result.development.total)} development costs are spread across ${result.productionQuantity} garments = ${formatMoney(result.development.perUnit)} each.`;
+  } else {
+    helper.textContent = "One-off development costs get shared across this many garments.";
+  }
+}
+
+const BREAKDOWN_COLORS = ["#82b0df", "#6fb8c2", "#c4a35a", "#a8b0ae", "#d6a946", "#b58ac2", "#8a93c2", "#70a480"];
+
+function renderPriceBreakdown(result) {
+  const rowsBox = $("#breakdownRows");
+  const bar = $("#breakdownBar");
+  const note = $("#breakdownNote");
+  if (!rowsBox || !bar) return;
+
+  const retail = result.retailPrice;
+  if (!(retail > 0)) {
+    rowsBox.innerHTML = "";
+    bar.innerHTML = "";
+    if (note) {
+      note.textContent =
+        result.denominator <= 0 ? BROKEN_SETTINGS_MESSAGE : "Add your costs to see where the price comes from.";
+      note.hidden = false;
+    }
+    return;
+  }
+  if (note) note.hidden = true;
+
+  const costRows = [
+    { label: "Fabric & trims", amount: result.materials },
+    { label: "Development (spread per garment)", amount: result.development.perUnit },
+    { label: "Making it (labour)", amount: result.labour.total },
+    { label: "Running the studio (overheads)", amount: result.overhead.perUnit },
+    { label: "Fixed selling costs", amount: result.fixedSelling },
+  ];
+  const gstAmount = result.retailPrice - result.netRetailPrice;
+  const knownTotal =
+    costRows.reduce((sum, row) => sum + row.amount, 0) + result.variableSelling + gstAmount;
+  const marginAmount = retail - knownTotal;
+
+  const slices = [
+    ...costRows.map((row) => ({
+      ...row,
+      detail: `${formatMoney(row.amount)} <em>→ ${formatMoney(row.amount * result.multiplier)} of the price</em>`,
+    })),
+    {
+      label: "Selling fees that grow with the price",
+      amount: result.variableSelling,
+      detail: `${formatMoney(result.variableSelling)} <em>set aside for fees & returns</em>`,
+    },
+    {
+      label: "GST",
+      amount: gstAmount,
+      detail: `${formatMoney(gstAmount)} <em>added for tax</em>`,
+    },
+    {
+      label: "Your margin",
+      amount: marginAmount,
+      detail: `${formatMoney(marginAmount)} <em>what the business keeps</em>`,
+    },
+  ];
+
+  rowsBox.innerHTML =
+    slices
+      .map((slice, index) => {
+        const share = retail > 0 ? (slice.amount / retail) * 100 : 0;
+        return `
+          <div class="breakdown-row">
+            <span class="breakdown-label"><i class="breakdown-dot" style="background:${BREAKDOWN_COLORS[index]}"></i>${slice.label}</span>
+            <span class="breakdown-detail">${slice.detail}</span>
+            <strong class="breakdown-pct">${share.toFixed(1)}%</strong>
+          </div>
+        `;
+      })
+      .join("") +
+    `
+      <div class="breakdown-row breakdown-total">
+        <span class="breakdown-label">Your retail price</span>
+        <span class="breakdown-detail">${formatMoney(retail)}</span>
+        <strong class="breakdown-pct">100%</strong>
+      </div>
+    `;
+
+  bar.innerHTML = slices
+    .map((slice, index) => {
+      const share = retail > 0 ? Math.max(0, (slice.amount / retail) * 100) : 0;
+      return `<span style="width:${share}%;background:${BREAKDOWN_COLORS[index]}" title="${slice.label}"></span>`;
+    })
+    .join("");
+}
+
+function describeEditedField(input) {
+  if (!input || !input.matches?.("input, select, textarea")) return null;
+  const materialRow = input.closest("#materialsTable tbody tr");
+  if (materialRow) {
+    const name = $(".material-name", materialRow)?.value.trim();
+    return {
+      label: name || "A material",
+      kind: input.classList.contains("material-unit-cost") ? "money" : "other",
+    };
+  }
+  if (input.type === "radio" && input.name === "gstIncluded") {
+    return { label: "the GST setting", kind: "other" };
+  }
+  const labelText = input.id ? $(`label[for="${CSS.escape(input.id)}"]`)?.textContent.trim() : "";
+  if (!labelText) return null;
+  let kind = "other";
+  if (input.type === "number") {
+    if (/%/.test(labelText) || /Percent$/.test(input.id) || input.id === "targetMargin") {
+      kind = "percent";
+    } else if (!/hours|quantity|units/i.test(input.id)) {
+      kind = "money";
+    }
+  }
+  return { label: labelText, kind };
+}
+
+function buildDeltaMessage(delta, result) {
+  const direction = delta >= 0 ? "+" : "−";
+  const deltaText = `${direction}${formatMoney(Math.abs(delta))}`;
+  const perDollar = result.denominator > 0 ? formatMoney(result.multiplier) : null;
+  const field = deltaEditedField;
+  const startValue = Number(deltaFieldStartValue);
+  const endValue = Number(field?.el?.value);
+
+  if (field && Number.isFinite(startValue) && Number.isFinite(endValue) && startValue !== endValue) {
+    const fieldDelta = endValue - startValue;
+    if (field.kind === "money" && perDollar) {
+      const word = fieldDelta >= 0 ? "went up" : "went down";
+      return `${deltaText} — ${field.label} ${word} ${formatMoney(Math.abs(fieldDelta))}, and every $1 of cost adds ${perDollar} at your settings.`;
+    }
+    if (field.kind === "percent") {
+      return perDollar
+        ? `${deltaText} — ${field.label} went from ${startValue}% to ${endValue}%. Now every $1 of cost adds ${perDollar}.`
+        : `${deltaText} — ${field.label} went from ${startValue}% to ${endValue}%.`;
+    }
+  }
+  if (field && perDollar) {
+    return `${deltaText} — you changed ${field.label}, and every $1 of cost adds ${perDollar} at your settings.`;
+  }
+  return `Retail price changed by ${deltaText}.`;
+}
+
+function showDeltaChip(message) {
+  ["deltaChipSummary", "deltaChipFinal"].forEach((id) => {
+    const chip = $(`#${id}`);
+    if (!chip) return;
+    chip.hidden = false;
+    chip.textContent = message;
+    chip.classList.add("visible");
+  });
+  window.clearTimeout(deltaHideTimer);
+  deltaHideTimer = window.setTimeout(hideDeltaChips, 6000);
+}
+
+function hideDeltaChips() {
+  $$(".delta-chip").forEach((chip) => chip.classList.remove("visible"));
+}
+
+function queueDeltaChip(target, previousRetail) {
+  if (!target || !target.matches?.("input, select, textarea")) return;
+  hideDeltaChips();
+  if (deltaBaselineRetail === null) deltaBaselineRetail = previousRetail;
+  if (!deltaEditedField || deltaEditedField.el !== target) {
+    const described = describeEditedField(target);
+    deltaEditedField = described ? { ...described, el: target } : null;
+    deltaFieldStartValue = null;
+  }
+  window.clearTimeout(deltaTimer);
+  deltaTimer = window.setTimeout(() => {
+    const delta = (calculations?.retailPrice || 0) - deltaBaselineRetail;
+    deltaBaselineRetail = null;
+    const message = Math.abs(delta) >= 0.005 ? buildDeltaMessage(delta, calculations) : "";
+    if (deltaEditedField?.el) deltaFieldStartValue = deltaEditedField.el.value;
+    if (message) showDeltaChip(message);
+  }, 400);
+}
+
+function cancelDeltaChip() {
+  window.clearTimeout(deltaTimer);
+  deltaBaselineRetail = null;
+  deltaEditedField = null;
+  deltaFieldStartValue = null;
+  hideDeltaChips();
+}
+
+function handleCostingFormEdit(event) {
+  const previousRetail = calculations?.retailPrice || 0;
+  updateDisplay();
+  queueDeltaChip(event.target, previousRetail);
+}
+
+function rememberFieldStartValue(event) {
+  const target = event.target;
+  if (!target.matches?.("input, select, textarea")) return;
+  if (deltaEditedField?.el !== target) {
+    deltaEditedField = null;
+    deltaFieldStartValue = null;
+  }
+  if (deltaFieldStartValue === null) deltaFieldStartValue = target.value;
+  if (!deltaEditedField) {
+    const described = describeEditedField(target);
+    deltaEditedField = described ? { ...described, el: target } : null;
+  }
+}
+
 function updateDisplay() {
   calculations = calculatePricing();
   const competitor = calculateCompetitors(calculations.retailPrice);
@@ -1626,6 +1910,11 @@ function updateDisplay() {
   if (pricingWarningIcon) pricingWarningIcon.src = statusIcon;
   setText("pricingWarningText", statusText);
   if (wholesaleOutput) wholesaleOutput.className = calculations.wholesaleClass;
+
+  updateMultiplierBanner(calculations);
+  updateMarginWarning(calculations);
+  updateQuantityHelper(calculations);
+  renderPriceBreakdown(calculations);
 
   setText("compProposedRetail", formatMoney(calculations.retailPrice));
   setText("compLowest", formatMoney(competitor.lowest));
@@ -1681,6 +1970,7 @@ function applyFormState(state, options = {}) {
   setLabourMode(labourMode);
   renderSavedCostings();
   showStep(0, false);
+  cancelDeltaChip();
   updateDisplay();
   if (remember) rememberCurrentCosting();
 }
@@ -1909,6 +2199,7 @@ function resetForm(options = {}) {
   setLabourMode("simple");
   showStep(0, false);
   renderSavedCostings();
+  cancelDeltaChip();
   updateDisplay();
   if (remember) rememberCurrentCosting();
   if (focus) requestAnimationFrame(() => $("#garmentName").focus());
@@ -2244,8 +2535,9 @@ async function initialiseAuth() {
 }
 
 function bindEvents() {
-  $("#costingForm").addEventListener("input", updateDisplay);
-  $("#costingForm").addEventListener("change", updateDisplay);
+  $("#costingForm").addEventListener("input", handleCostingFormEdit);
+  $("#costingForm").addEventListener("change", handleCostingFormEdit);
+  $("#costingForm").addEventListener("focusin", rememberFieldStartValue);
 
   $("#materialsTable").addEventListener("click", (event) => {
     const resetButton = event.target.closest(".reset-row");
