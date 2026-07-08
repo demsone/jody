@@ -6,7 +6,7 @@ const PROFILE_KEY = "gcc-profile-v1";
 const SUPABASE_URL = "https://mtdruznliejklgketgij.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_paCSohSyl8gTTVD6lxouLA_dWYCGaa_";
 const CLOUD_TABLE = "costings";
-const APP_BUILD = "v2.17";
+const APP_BUILD = "v2.18";
 const NEW_COSTING_LABEL = "Add new Costing";
 const MOBILE_NEW_COSTING_LABEL = "Item-Name";
 const DEFAULT_ACCENT = "#82b0df";
@@ -2341,8 +2341,18 @@ function supabaseSdk() {
 
 function friendlyAuthError(error) {
   const message = error?.message || "Something went wrong. Please try again.";
-  if (message.toLowerCase().includes("invalid login credentials")) return "Email or password is incorrect.";
-  if (message.toLowerCase().includes("already registered")) return "This email already has an account.";
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("networkerror") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("load failed") ||
+    lower.includes("network request failed") ||
+    error?.name === "AuthRetryableFetchError"
+  ) {
+    return "We can't reach the account service right now. It may just be waking up — wait a minute and try again.";
+  }
+  if (lower.includes("invalid login credentials")) return "Email or password is incorrect.";
+  if (lower.includes("already registered")) return "This email already has an account.";
   return message;
 }
 
